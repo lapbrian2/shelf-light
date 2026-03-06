@@ -121,13 +121,6 @@ a{color:inherit;text-decoration:none}
   animation:vbreathe 8s ease-in-out infinite;
 }
 @keyframes vbreathe{0%,100%{opacity:.82}50%{opacity:1}}
-/* ── FILM GRAIN ──────────────────────────── */
-#grain{
-  position:fixed;inset:0;z-index:3;pointer-events:none;
-  opacity:.035;mix-blend-mode:overlay;
-  width:100%;height:100%;
-  image-rendering:pixelated;
-}
 /* ── SOUND TOGGLE ────────────────────────── */
 #sound-toggle{
   position:fixed;bottom:28px;right:28px;z-index:300;
@@ -665,8 +658,6 @@ footer{
 </svg>
 <!-- VIGNETTE -->
 <div id="vignette"></div>
-<!-- FILM GRAIN -->
-<canvas id="grain" width="150" height="150"></canvas>
 <!-- CURSOR -->
 <div id="cur-ring"></div>
 <div id="cur-dot"></div>
@@ -1170,24 +1161,7 @@ gsap.to('#tl-progress',{
 });
 
 /* ══════════════════════════════════════════
-   10. FILM GRAIN — animated noise texture
-══════════════════════════════════════════ */
-const grainCvs=document.getElementById('grain');
-const gCtx=grainCvs.getContext('2d');
-function renderGrain(){
-  const d=gCtx.createImageData(150,150);
-  for(let i=0;i<d.data.length;i+=4){
-    const v=Math.random()*255;
-    d.data[i]=d.data[i+1]=d.data[i+2]=v;
-    d.data[i+3]=255;
-  }
-  gCtx.putImageData(d,0,0);
-}
-setInterval(renderGrain,70);
-renderGrain();
-
-/* ══════════════════════════════════════════
-   11. AMBIENT CAFÉ AUDIO — pink noise murmur
+   10. AMBIENT CAFÉ AUDIO — pink noise murmur
 ══════════════════════════════════════════ */
 let audioCtx,audioOn=false,audioNodes;
 const soundBtn=document.getElementById('sound-toggle');
@@ -1238,7 +1212,7 @@ soundBtn.addEventListener('click',()=>{
 });
 
 /* ══════════════════════════════════════════
-   12. RESIZE + DISPOSE
+   11. RESIZE + DISPOSE
 ══════════════════════════════════════════ */
 window.addEventListener('resize',()=>{
   camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();
