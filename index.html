@@ -77,7 +77,7 @@ a{color:inherit;text-decoration:none}
 /* ── CURSOR ─────────────────────────────── */
 @media (pointer: fine) {
   body { cursor: none; }
-  a, button, .pal-card, .si, .t-item { cursor: none; }
+  a, button, .pal-card, .si, .t-item, #sound-toggle { cursor: none; }
 }
 #cur-ring{
   position:fixed;width:48px;height:48px;border-radius:50%;
@@ -118,7 +118,44 @@ a{color:inherit;text-decoration:none}
 #vignette{
   position:fixed;inset:0;z-index:2;pointer-events:none;
   background:radial-gradient(ellipse at 50% 50%,transparent 55%,rgba(42,30,28,.12) 100%);
+  animation:vbreathe 8s ease-in-out infinite;
 }
+@keyframes vbreathe{0%,100%{opacity:.82}50%{opacity:1}}
+/* ── FILM GRAIN ──────────────────────────── */
+#grain{
+  position:fixed;inset:0;z-index:3;pointer-events:none;
+  opacity:.035;mix-blend-mode:overlay;
+  width:100%;height:100%;
+  image-rendering:pixelated;
+}
+/* ── SOUND TOGGLE ────────────────────────── */
+#sound-toggle{
+  position:fixed;bottom:28px;right:28px;z-index:300;
+  width:42px;height:42px;border-radius:50%;
+  background:rgba(240,232,224,.8);backdrop-filter:blur(12px);
+  border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;padding:0;
+  transition:background .2s,border-color .2s,transform .25s;
+  color:var(--dimmer);
+}
+#sound-toggle:hover{border-color:var(--accent);transform:scale(1.1)}
+#sound-toggle.on{color:var(--accent);border-color:rgba(42,128,144,.3)}
+.sound-bars{display:flex;align-items:flex-end;gap:2.5px;height:14px}
+.sound-bars span{
+  display:block;width:2.5px;background:currentColor;border-radius:1px;
+  transition:height .3s cubic-bezier(.16,1,.3,1);
+}
+.sound-bars span:nth-child(1){height:5px}
+.sound-bars span:nth-child(2){height:10px}
+.sound-bars span:nth-child(3){height:14px}
+.sound-bars span:nth-child(4){height:7px}
+#sound-toggle.on .sound-bars span{animation:sbar .6s ease-in-out infinite alternate}
+#sound-toggle.on .sound-bars span:nth-child(1){animation-delay:0s}
+#sound-toggle.on .sound-bars span:nth-child(2){animation-delay:.12s}
+#sound-toggle.on .sound-bars span:nth-child(3){animation-delay:.24s}
+#sound-toggle.on .sound-bars span:nth-child(4){animation-delay:.36s}
+@keyframes sbar{0%{height:3px}100%{height:14px}}
 /* ── SOCIAL SIDEBAR ─────────────────────── */
 .sidebar{
   position:fixed;bottom:0;left:24px;z-index:200;
@@ -628,11 +665,17 @@ footer{
 </svg>
 <!-- VIGNETTE -->
 <div id="vignette"></div>
+<!-- FILM GRAIN -->
+<canvas id="grain" width="150" height="150"></canvas>
 <!-- CURSOR -->
 <div id="cur-ring"></div>
 <div id="cur-dot"></div>
 <!-- SCROLL PROGRESS -->
 <div id="scroll-progress"></div>
+<!-- SOUND TOGGLE -->
+<button id="sound-toggle" aria-label="Toggle ambient sound">
+  <div class="sound-bars"><span></span><span></span><span></span><span></span></div>
+</button>
 <!-- SOCIAL SIDEBAR -->
 <aside class="sidebar">
   <a href="https://github.com/lapbrian2" class="s-link" title="GitHub" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg></a>
@@ -823,7 +866,7 @@ if(window.matchMedia('(pointer:fine)').matches){
   let cx=window.innerWidth/2,cy=window.innerHeight/2,lx2=cx,ly2=cy;
   window.addEventListener('mousemove',e=>{cx=e.clientX;cy=e.clientY});
   (function ac(){lx2+=(cx-lx2)*.1;ly2+=(cy-ly2)*.1;ring.style.left=lx2+'px';ring.style.top=ly2+'px';dot.style.left=cx+'px';dot.style.top=cy+'px';requestAnimationFrame(ac)})();
-  document.querySelectorAll('a,button,.pal-card,.si').forEach(el=>{
+  document.querySelectorAll('a,button,.pal-card,.si,#sound-toggle').forEach(el=>{
     el.addEventListener('mouseenter',()=>{ring.classList.add('h');ring.classList.remove('text')});
     el.addEventListener('mouseleave',()=>{ring.classList.remove('h');ring.classList.remove('text')});
   });
@@ -989,8 +1032,8 @@ gsap.to('#sk-svg',{scrollTrigger:{trigger:'#how',start:'top bottom',end:'top top
 
 /* ── TONE SHIFT — exposure warms as you scroll deeper into the café ── */
 const toneProxy={exposure:1.02};
-gsap.to(toneProxy,{scrollTrigger:{trigger:'#journey',start:'top bottom',end:'bottom top',scrub:2},exposure:1.12,onUpdate:()=>{renderer.toneMappingExposure=toneProxy.exposure;}});
-gsap.to(toneProxy,{scrollTrigger:{trigger:'#cta',start:'top bottom',end:'top top',scrub:1.5},exposure:0.95,onUpdate:()=>{renderer.toneMappingExposure=toneProxy.exposure;}});
+gsap.to(toneProxy,{scrollTrigger:{trigger:'#journey',start:'top bottom',end:'bottom top',scrub:2},exposure:1.22,onUpdate:()=>{renderer.toneMappingExposure=toneProxy.exposure;}});
+gsap.to(toneProxy,{scrollTrigger:{trigger:'#cta',start:'top bottom',end:'top top',scrub:1.5},exposure:0.88,onUpdate:()=>{renderer.toneMappingExposure=toneProxy.exposure;}});
 
 /* ══════════════════════════════════════════
    6. RENDER LOOP — particles, pendants, steam, camera
@@ -999,19 +1042,24 @@ const clock=new THREE.Clock();
 let mx=0,my=0,sx2=0,sy2=0;
 window.addEventListener('mousemove',e=>{mx=(e.clientX/window.innerWidth-.5)*2;my=(e.clientY/window.innerHeight-.5)*2;});
 
+const skSvgEl=document.getElementById('sk-svg');
+
 (function tick(){
   requestAnimationFrame(tick);
   const t=clock.getElapsedTime();
   const dt=clock.getDelta();
   sx2+=(mx-sx2)*.025;sy2+=(my-sy2)*.025;
 
-  // Camera
+  // Camera — deeper mouse parallax for physical presence
   camera.position.set(
-    proxy.x+sx2*.14+Math.sin(t*.628)*.06,
-    proxy.y+sy2*.07+Math.sin(t*.22)*.025,
+    proxy.x+sx2*.28+Math.sin(t*.628)*.06,
+    proxy.y+sy2*.14+Math.sin(t*.22)*.025,
     proxy.z
   );
-  camera.lookAt(proxy.lx+sx2*.05,proxy.ly,-2);
+  camera.lookAt(proxy.lx+sx2*.08,proxy.ly,-2);
+
+  // SVG sketch — parallax OPPOSITE to camera (creates layered depth)
+  skSvgEl.style.transform='translate('+(-sx2*5)+'px,'+(sy2*3.5)+'px)';
 
   // Pendant sway
   pendants.forEach((p,i)=>{
@@ -1022,10 +1070,13 @@ window.addEventListener('mousemove',e=>{mx=(e.clientX/window.innerWidth-.5)*2;my
     p.wire.rotation.z=swing*.15;
   });
 
-  // Light cones breathe — subtle volumetric pulse
+  // Light cones — breathe + track cursor (light aware of you)
   pendants.forEach((p,i)=>{
     if(p.coneMat) p.coneMat.opacity=0.03+Math.sin(t*.6+i*1.2)*.015;
-    if(p.cone){p.cone.position.x=p.baseX+Math.sin(t*.8+i*1.5)*.04;}
+    if(p.cone){
+      p.cone.position.x=p.baseX+Math.sin(t*.8+i*1.5)*.04+sx2*.2;
+      p.cone.rotation.z=sx2*.04;
+    }
   });
 
   // Books — occasional micro-settle (tiny rotation wobble, very subtle)
@@ -1119,7 +1170,75 @@ gsap.to('#tl-progress',{
 });
 
 /* ══════════════════════════════════════════
-   10. RESIZE + DISPOSE
+   10. FILM GRAIN — animated noise texture
+══════════════════════════════════════════ */
+const grainCvs=document.getElementById('grain');
+const gCtx=grainCvs.getContext('2d');
+function renderGrain(){
+  const d=gCtx.createImageData(150,150);
+  for(let i=0;i<d.data.length;i+=4){
+    const v=Math.random()*255;
+    d.data[i]=d.data[i+1]=d.data[i+2]=v;
+    d.data[i+3]=255;
+  }
+  gCtx.putImageData(d,0,0);
+}
+setInterval(renderGrain,70);
+renderGrain();
+
+/* ══════════════════════════════════════════
+   11. AMBIENT CAFÉ AUDIO — pink noise murmur
+══════════════════════════════════════════ */
+let audioCtx,audioOn=false,audioNodes;
+const soundBtn=document.getElementById('sound-toggle');
+
+function initAudio(){
+  audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  const sr=audioCtx.sampleRate;
+  const len=4*sr;
+  const buf=audioCtx.createBuffer(2,len,sr);
+  for(let ch=0;ch<2;ch++){
+    const d=buf.getChannelData(ch);
+    let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+    for(let i=0;i<len;i++){
+      const w=Math.random()*2-1;
+      b0=0.99886*b0+w*0.0555179;
+      b1=0.99332*b1+w*0.0750759;
+      b2=0.96900*b2+w*0.1538520;
+      b3=0.86650*b3+w*0.3104856;
+      b4=0.55000*b4+w*0.5329522;
+      b5=-0.7616*b5-w*0.0168980;
+      d[i]=(b0+b1+b2+b3+b4+b5+b6+w*0.5362)*0.11;
+      b6=w*0.115926;
+    }
+  }
+  const noise=audioCtx.createBufferSource();
+  noise.buffer=buf;noise.loop=true;
+  const lp=audioCtx.createBiquadFilter();
+  lp.type='lowpass';lp.frequency.value=280;lp.Q.value=0.7;
+  const hp=audioCtx.createBiquadFilter();
+  hp.type='highpass';hp.frequency.value=60;hp.Q.value=0.5;
+  const gain=audioCtx.createGain();
+  gain.gain.value=0;
+  noise.connect(lp);lp.connect(hp);hp.connect(gain);gain.connect(audioCtx.destination);
+  noise.start();
+  return {gain};
+}
+
+soundBtn.addEventListener('click',()=>{
+  if(!audioCtx){audioNodes=initAudio();}
+  audioOn=!audioOn;
+  soundBtn.classList.toggle('on',audioOn);
+  if(audioOn){
+    audioCtx.resume();
+    audioNodes.gain.gain.linearRampToValueAtTime(0.022,audioCtx.currentTime+1.2);
+  }else{
+    audioNodes.gain.gain.linearRampToValueAtTime(0,audioCtx.currentTime+0.6);
+  }
+});
+
+/* ══════════════════════════════════════════
+   12. RESIZE + DISPOSE
 ══════════════════════════════════════════ */
 window.addEventListener('resize',()=>{
   camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();
@@ -1130,6 +1249,7 @@ window.addEventListener('beforeunload',()=>{
   ScrollTrigger.getAll().forEach(s=>s.kill());lenis.destroy();
   scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.dispose());});
   renderer.dispose();
+  if(audioCtx)audioCtx.close();
 });
 </script>
 </body>
