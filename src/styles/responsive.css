@@ -1,0 +1,17 @@
+/* ── REDUCED MOTION ─────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .scroll-bar { animation: none; }
+  #loader{display:none}
+}
+
+/* ── RESPONSIVE ─────────────────────────── */
+@media(max-width:900px){
+  .two-col,footer{grid-template-columns:1fr}
+  .sidebar,.resume-pill{display:none}
+  .nav-r .nav-link{display:none}
+  .section{padding-left:clamp(32px,4vw,48px);padding-right:clamp(32px,4vw,48px)}
+  .hero-counter{display:none}
+  .section-divider{height:15vh;min-height:80px}
+}
+@media(max-width:600px){.pal-grid{grid-template-columns:1fr 1fr}.hero-ctas{flex-direction:column}}

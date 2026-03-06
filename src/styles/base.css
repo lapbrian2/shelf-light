@@ -1,0 +1,212 @@
+/* ── Lenis overrides ─────────────────────── */
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-stopped{overflow:hidden}
+
+/* ══════════════════════════════════════════
+   TOKENS — cafe DNA palette
+══════════════════════════════════════════ */
+:root{
+  --bg:      #B8CCCA;
+  --bg2:     #C8D8D4;
+  --bg3:     #D0DED8;
+  --text:    #2A1E1C;
+  --dim:     rgba(42,30,28,.78);
+  --dimmer:  rgba(42,30,28,.5);
+  --accent:  #2A8090;
+  --accent2: #1E6070;
+  --border:  rgba(42,30,28,.12);
+  --border2: rgba(42,30,28,.2);
+  --card:    rgba(240,232,224,.7);
+  --card2:   #F0E8E0;
+  --cream:   #F0E8E0;
+  --salmon:  #DEB4A0;
+  --amber:   #C07820;
+  --lav:     #C0A8BE;
+  --mauve:   #9A7070;
+  --sketch:  #3A2A28;
+  --ff:      'DM Sans', sans-serif;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:auto}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:var(--ff);font-weight:400;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none}
+
+/* ── LOADER SCREEN ──────────────────────── */
+#loader{
+  position:fixed;inset:0;z-index:10000;
+  background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:opacity .8s cubic-bezier(.16,1,.3,1),visibility .8s;
+}
+#loader.done{opacity:0;visibility:hidden;pointer-events:none}
+.loader-ring{
+  width:48px;height:48px;border-radius:50%;
+  border:2px solid var(--border);
+  border-top-color:var(--accent);
+  animation:lspin .9s linear infinite;
+}
+@keyframes lspin{to{transform:rotate(360deg)}}
+.loader-text{
+  margin-top:20px;font-size:10px;letter-spacing:.5em;
+  text-transform:uppercase;color:var(--dimmer);font-weight:600;
+}
+.loader-bar{
+  width:120px;height:1px;background:var(--border);margin-top:14px;
+  position:relative;overflow:hidden;
+}
+.loader-fill{
+  position:absolute;left:0;top:0;height:100%;width:0;
+  background:var(--accent);transition:width .3s;
+}
+
+/* ── CURSOR ─────────────────────────────── */
+@media (pointer: fine) {
+  body { cursor: none; }
+  a, button, .pal-card, .si, .t-item, #sound-toggle { cursor: none; }
+}
+#cur-ring{
+  position:fixed;width:48px;height:48px;border-radius:50%;
+  border:1.5px solid rgba(42,128,144,.5);
+  pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:width .28s cubic-bezier(.16,1,.3,1),
+             height .28s cubic-bezier(.16,1,.3,1),
+             background .28s,border-color .28s,
+             opacity .3s;
+  mix-blend-mode:exclusion;
+}
+#cur-dot{
+  position:fixed;width:5px;height:5px;border-radius:50%;
+  background:var(--accent);pointer-events:none;z-index:10000;
+  transform:translate(-50%,-50%);
+  transition:width .2s,height .2s,background .2s;
+}
+#cur-ring.h{width:66px;height:66px;background:rgba(42,128,144,.07);border-color:var(--accent)}
+#cur-ring.text{width:80px;height:80px;background:rgba(42,128,144,.04);border-color:transparent;mix-blend-mode:difference}
+#cur-dot.text{width:3px;height:3px}
+@media (pointer: coarse) {
+  #cur-ring, #cur-dot { display: none; }
+}
+
+/* ── THREE.JS CANVAS — fixed behind page */
+#c3d{
+  position:fixed;inset:0;width:100%;height:100%;
+  z-index:0;pointer-events:none;
+}
+/* Sketch SVG above canvas */
+#sk-svg{
+  position:fixed;inset:0;width:100%;height:100%;
+  z-index:1;pointer-events:none;
+  opacity:0;transition:opacity 1.2s .5s;
+}
+#sk-svg.drawn{opacity:1}
+
+/* ── VIGNETTE OVERLAY ──────────────────── */
+#vignette{
+  position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 50%,transparent 55%,rgba(42,30,28,.12) 100%);
+  animation:vbreathe 8s ease-in-out infinite;
+}
+@keyframes vbreathe{0%,100%{opacity:.82}50%{opacity:1}}
+
+/* ── SOUND TOGGLE ────────────────────────── */
+#sound-toggle{
+  position:fixed;bottom:28px;right:28px;z-index:300;
+  width:42px;height:42px;border-radius:50%;
+  background:rgba(240,232,224,.8);backdrop-filter:blur(12px);
+  border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;padding:0;
+  transition:background .2s,border-color .2s,transform .25s;
+  color:var(--dimmer);
+}
+#sound-toggle:hover{border-color:var(--accent);transform:scale(1.1)}
+#sound-toggle.on{color:var(--accent);border-color:rgba(42,128,144,.3)}
+.sound-bars{display:flex;align-items:flex-end;gap:2.5px;height:14px}
+.sound-bars span{
+  display:block;width:2.5px;background:currentColor;border-radius:1px;
+  transition:height .3s cubic-bezier(.16,1,.3,1);
+}
+.sound-bars span:nth-child(1){height:5px}
+.sound-bars span:nth-child(2){height:10px}
+.sound-bars span:nth-child(3){height:14px}
+.sound-bars span:nth-child(4){height:7px}
+#sound-toggle.on .sound-bars span{animation:sbar .6s ease-in-out infinite alternate}
+#sound-toggle.on .sound-bars span:nth-child(1){animation-delay:0s}
+#sound-toggle.on .sound-bars span:nth-child(2){animation-delay:.12s}
+#sound-toggle.on .sound-bars span:nth-child(3){animation-delay:.24s}
+#sound-toggle.on .sound-bars span:nth-child(4){animation-delay:.36s}
+@keyframes sbar{0%{height:3px}100%{height:14px}}
+
+/* ── SOCIAL SIDEBAR ─────────────────────── */
+.sidebar{
+  position:fixed;bottom:0;left:24px;z-index:200;
+  display:flex;flex-direction:column;align-items:center;gap:16px;
+}
+.sidebar::after{content:'';width:1px;height:80px;background:var(--border2);display:block}
+.s-link{
+  color:var(--dimmer);display:flex;
+  transition:color .2s,transform .2s;
+}
+.s-link:hover{color:var(--accent);transform:translateY(-2px)}
+.s-link svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── RESUME PILL ────────────────────────── */
+.resume-pill{
+  position:fixed;right:0;bottom:120px;z-index:200;
+  writing-mode:vertical-rl;
+  font-size:10px;letter-spacing:.38em;text-transform:uppercase;
+  font-weight:600;color:var(--dimmer);
+  padding:8px 12px;transition:color .2s;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+}
+.resume-pill::before{content:'';width:1px;height:52px;background:var(--border2);display:block}
+.resume-pill:hover{color:var(--accent)}
+
+/* ── SCROLL PROGRESS BAR ──────────────── */
+#scroll-progress{
+  position:fixed;top:0;left:0;height:2px;
+  background:var(--accent);z-index:9000;
+  width:0;transition:none;
+  transform-origin:left;
+}
+
+/* ── SECTION LABEL ──────────────────────── */
+.sl{
+  display:inline-flex;align-items:center;gap:12px;
+  font-size:10px;letter-spacing:.52em;text-transform:uppercase;
+  font-weight:600;color:var(--accent);margin-bottom:20px;
+}
+.sl::before{content:'';width:22px;height:1px;background:var(--accent);display:block;transition:width .6s cubic-bezier(.16,1,.3,1)}
+.sl.in::before{width:42px}
+
+/* ── PAGE SECTIONS ──────────────────────── */
+main{position:relative;z-index:10}
+.section{
+  padding:130px clamp(32px,4vw,80px) 130px clamp(80px,8vw,160px);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+}
+
+/* ── SECTION DIVIDER — transparent 3D window ── */
+.section-divider{
+  height:22vh;min-height:120px;max-height:220px;
+  margin:0;background:transparent;
+}
+
+/* ── FADE-UP ────────────────────────────── */
+.fu{opacity:0;transform:translateY(18px);transition:opacity .65s cubic-bezier(.16,1,.3,1),transform .65s cubic-bezier(.16,1,.3,1)}
+.fu.in{opacity:1;transform:none}
+
+/* ── SPLIT-WORD BLUR REVEAL ─────────────── */
+.sw{
+  display:inline-block;
+  opacity:0;filter:blur(6px);transform:translateY(8px);
+  transition:opacity .6s cubic-bezier(.16,1,.3,1),filter .6s cubic-bezier(.16,1,.3,1),transform .6s cubic-bezier(.16,1,.3,1);
+}
+.sw.in{opacity:1;filter:blur(0);transform:none}
