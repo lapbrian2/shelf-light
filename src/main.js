@@ -13,8 +13,11 @@ import { THREE, renderer, scene, camera, proxy } from './scene/index.js';
 import { allBooks, steamWisps, openBook } from './scene/geometry.js';
 import { pendants } from './scene/lights.js';
 
+// Post-processing
+import { initPostProcessing, updatePostProcessing } from './scene/postprocessing.js';
+
 // Modules
-import { lenis, ScrollTrigger, initNav } from './scroll.js';
+import { lenis, ScrollTrigger, initNav, scrollState } from './scroll.js';
 import { mouse, initCursor } from './cursor.js';
 import { initCameraChoreography, initHeroReveal, initObservers } from './animations.js';
 import { initSoundToggle, disposeAudio } from './audio.js';
@@ -44,6 +47,9 @@ initForm();
 initFPSCounter();
 initRenderStats(renderer);
 
+// Post-processing pipeline (film grain + vignette + chromatic aberration)
+const composer = initPostProcessing(renderer, scene, camera);
+
 log.info('Shelf Light initialized');
 
 /* ══════════════════════════════════════════
@@ -51,6 +57,7 @@ log.info('Shelf Light initialized');
 ══════════════════════════════════════════ */
 const clock = new THREE.Clock();
 const skSvgEl = document.getElementById('sk-svg');
+let smoothedSkew = 0; // lerps toward velocity-based target, settles back to 0
 
 (function tick() {
   requestAnimationFrame(tick);
@@ -67,8 +74,18 @@ const skSvgEl = document.getElementById('sk-svg');
   );
   camera.lookAt(proxy.lx + mouse.sx2 * .08, proxy.ly, -2);
 
+  // ── Velocity-based content skew ──
+  // Content tilts slightly during fast scroll, settles back to 0
+  const skewTarget = Math.max(-4, Math.min(4, scrollState.velocity * 0.8));
+  smoothedSkew += (skewTarget - smoothedSkew) * 0.08; // smooth lerp
+  // Kill micro-jitter when nearly settled
+  if (Math.abs(smoothedSkew) < 0.001) smoothedSkew = 0;
+  document.documentElement.style.setProperty('--scroll-skew', smoothedSkew + 'deg');
+
   // SVG sketch — parallax OPPOSITE to camera (creates layered depth)
-  skSvgEl.style.transform = 'translate(' + (-mouse.sx2 * 5) + 'px,' + (mouse.sy2 * 3.5) + 'px)';
+  // + velocity-based scale: shrinks slightly during fast scroll for physical weight
+  const velScale = Math.max(0.97, 1 - Math.abs(scrollState.velocity) * 0.008);
+  skSvgEl.style.transform = 'translate(' + (-mouse.sx2 * 5) + 'px,' + (mouse.sy2 * 3.5) + 'px) scale(' + velScale + ')';
 
   // Pendant sway
   pendants.forEach((p, i) => {
@@ -110,7 +127,8 @@ const skSvgEl = document.getElementById('sk-svg');
     openBook.children[1].rotation.z = -0.08 - Math.sin(t * 1.2 + 0.5) * 0.01;
   }
 
-  renderer.render(scene, camera);
+  updatePostProcessing(composer, mouse, t);
+  composer.render();
 })();
 
 /* ══════════════════════════════════════════
@@ -121,6 +139,7 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  composer.setSize(window.innerWidth, window.innerHeight);
   ScrollTrigger.refresh();
 });
 

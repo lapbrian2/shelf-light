@@ -38,50 +38,83 @@ export function initHeroReveal() {
     if (loadProgress >= 100) clearInterval(loadInterval);
   }, 120);
 
+  // Camera starts zoomed in on the open book (proxy initialized to close-up in scene/index.js)
+  // Hero establishing shot — the destination after the cinematic pull-back
+  const heroShot = { z: 6.5, x: 0.3, y: 0.1, lx: 0.8, ly: 0.2 };
+
   window.addEventListener('load', () => {
     loaderFill.style.width = '100%';
     setTimeout(() => {
       document.getElementById('loader').classList.add('done');
-      // stagger hero elements with cinematic timing
-      const heroTimings = [
-        ['h0', 200], ['h1', 480], ['h2', 820], ['h3', 1100], ['h4', 1350], ['h5', 1700], ['h6', 600]
-      ];
-      heroTimings.forEach(([id, delay]) => setTimeout(() => {
-        const el = document.getElementById(id);
-        if (el) { el.style.opacity = '1'; el.style.transform = 'none'; }
-      }, delay));
 
-      // SVG sketch draw-in
-      document.querySelectorAll('.sk').forEach(p => {
-        try { const l = p.getTotalLength(); p.style.strokeDasharray = l; p.style.strokeDashoffset = l; } catch (e) { /* ignore */ }
+      // ── Cinematic 3D reveal: book close-up → hero establishing shot ──
+      const revealTL = gsap.timeline();
+
+      // Act 1: Camera pulls back from the book to the hero position (2.2s, power2.inOut)
+      revealTL.to(proxy, {
+        z: heroShot.z,
+        x: heroShot.x,
+        y: heroShot.y,
+        lx: heroShot.lx,
+        ly: heroShot.ly,
+        duration: 2.2,
+        ease: 'power2.inOut'
       });
-      gsap.to('.sk', {
-        strokeDashoffset: 0, duration: .06, stagger: { each: .025, from: 'start' },
-        ease: 'power1.out', delay: .6,
-        onComplete: () => document.getElementById('sk-svg').classList.add('drawn')
+
+      // Act 2: Stagger hero text elements in after camera arrives
+      const heroTimings = [
+        ['h0', 0],    ['h6', 0.08], ['h1', 0.20],
+        ['h2', 0.38], ['h3', 0.52], ['h4', 0.66], ['h5', 0.88]
+      ];
+      heroTimings.forEach(([id, offset]) => {
+        revealTL.call(() => {
+          const el = document.getElementById(id);
+          if (el) { el.style.opacity = '1'; el.style.transform = 'none'; }
+        }, [], offset === 0 ? '>' : `>+=${offset}`);
       });
+
+      // Act 3: SVG sketch draw-in after hero text has landed
+      revealTL.call(() => {
+        document.querySelectorAll('.sk').forEach(p => {
+          try { const l = p.getTotalLength(); p.style.strokeDasharray = l; p.style.strokeDashoffset = l; } catch (e) { /* ignore */ }
+        });
+        gsap.to('.sk', {
+          strokeDashoffset: 0, duration: .06, stagger: { each: .025, from: 'start' },
+          ease: 'power1.out',
+          onComplete: () => document.getElementById('sk-svg').classList.add('drawn')
+        });
+      }, [], '>+=0.15');
+
     }, 500);
   });
 }
 
 /* ══════════════════════════════════════════
-   SPLIT-WORD BLUR REVEAL
+   SPLIT-CHAR BLUR REVEAL
 ══════════════════════════════════════════ */
 function splitReveal(id) {
   const el = document.getElementById(id); if (!el) return;
   const words = el.textContent.split(/\s+/).filter(Boolean);
   el.textContent = '';
-  words.forEach((w, i) => {
-    const span = document.createElement('span');
-    span.className = 'sw';
-    span.textContent = w;
-    if (i > 0) el.appendChild(document.createTextNode(' '));
-    el.appendChild(span);
+  let charIndex = 0;
+  words.forEach((w, wi) => {
+    if (wi > 0) el.appendChild(document.createTextNode(' '));
+    const wordSpan = document.createElement('span');
+    wordSpan.className = 'sw';
+    for (let ci = 0; ci < w.length; ci++) {
+      const charSpan = document.createElement('span');
+      charSpan.className = 'sc';
+      charSpan.textContent = w[ci];
+      charSpan.style.transitionDelay = charIndex * 25 + 'ms';
+      wordSpan.appendChild(charSpan);
+      charIndex++;
+    }
+    el.appendChild(wordSpan);
   });
-  const spans = el.querySelectorAll('.sw');
+  const chars = el.querySelectorAll('.sc');
   new IntersectionObserver(en => {
     if (!en[0].isIntersecting) return;
-    spans.forEach((w, i) => setTimeout(() => w.classList.add('in'), i * 58));
+    chars.forEach((c, i) => setTimeout(() => c.classList.add('in'), i * 25));
   }, { threshold: .15 }).observe(el);
 }
 
