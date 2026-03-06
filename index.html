@@ -725,29 +725,29 @@ footer{
   </div>
 </section>
 <div class="section-divider"></div>
-<!-- ══ WHAT YOU GET ══ -->
-<section id="service" class="section">
+<!-- ══ HOW IT'S BUILT ══ -->
+<section id="how" class="section">
   <div class="two-col">
     <div>
-      <p class="sl fu">What You Get</p>
-      <h2 class="p-title fu" style="transition-delay:.1s">Your art,<br>as a <em>world</em><br>people enter.</h2>
-      <p class="p-desc fu" style="transition-delay:.2s">Send me an illustration, a painting, a sketch, a photograph — any image with a strong visual identity. I'll transform it into a fully interactive 3D experience like this one. A living portfolio piece. A website that IS the art.</p>
+      <p class="sl fu">How It's Built</p>
+      <h2 class="p-title fu" style="transition-delay:.1s">One file.<br>No frameworks.<br><em>Pure web.</em></h2>
+      <p class="p-desc fu" style="transition-delay:.2s">This entire world — the 3D scene, the animations, the scroll choreography, the hand-drawn overlay — lives in a single HTML file. No React, no build step, no node_modules. Just the browser APIs that have always been there, pushed to their edges.</p>
       <div class="prompt-box fu" style="transition-delay:.3s">
-        <p>Every world is a single, self-contained web page — no frameworks to maintain, no dependencies to update. It runs on any device with a browser. The 3D scene is built from your image's exact palette, geometry, and visual language. Scroll-driven camera choreography. Hand-drawn line overlays. Responsive. Fast. Yours to own and host anywhere.</p>
+        <p>Three.js renders the scene. GSAP drives the scroll-triggered camera moves. Lenis makes the scrolling feel physical. The sketch lines are SVG paths that draw themselves in when you arrive. Every color in the 3D scene matches the original illustration's palette exactly. The pendant lights sway on a sine wave. The exposure shifts warmer as you scroll deeper. No lights — the warmth comes from the colors themselves.</p>
       </div>
     </div>
     <div>
-      <p class="sl fu" style="transition-delay:.1s">What's Included</p>
+      <p class="sl fu" style="transition-delay:.1s">Under the Hood</p>
       <table class="w-table fu" style="transition-delay:.2s">
-        <thead><tr><th>Deliverable</th><th>Details</th><th></th></tr></thead>
+        <thead><tr><th>Layer</th><th>What It Does</th><th></th></tr></thead>
         <tbody>
-          <tr><td>3D World</td><td>Full interactive scene built from your source image</td><td>✓</td></tr>
-          <tr><td>Custom Palette</td><td>Colors extracted and mapped to every 3D surface</td><td>✓</td></tr>
-          <tr><td>Sketch Overlay</td><td>Hand-drawn line layer matching your illustration style</td><td>✓</td></tr>
-          <tr><td>Scroll Experience</td><td>Camera choreography that tells the story as you scroll</td><td>✓</td></tr>
-          <tr><td>Responsive</td><td>Desktop, tablet, mobile — works everywhere</td><td>✓</td></tr>
-          <tr><td>Self-Hosted</td><td>Single HTML file, no dependencies, deploy anywhere</td><td>✓</td></tr>
-          <tr><td>Source Code</td><td>You own everything — no subscriptions, no lock-in</td><td>✓</td></tr>
+          <tr><td>Three.js</td><td>Renders the café as a 3D scene — walls, shelves, table, chairs, books, cups</td><td>3D</td></tr>
+          <tr><td>GSAP</td><td>Scroll-driven camera choreography — each section moves you through the room</td><td>Motion</td></tr>
+          <tr><td>Lenis</td><td>Smooth scroll with momentum — makes scrolling feel physical, not digital</td><td>Feel</td></tr>
+          <tr><td>SVG Overlay</td><td>Hand-drawn sketch lines floating above the 3D, drawn in on arrival</td><td>Texture</td></tr>
+          <tr><td>Custom Cursor</td><td>Teal ring with eased following — different states for links vs text</td><td>Polish</td></tr>
+          <tr><td>Tone Mapping</td><td>ACESFilmic warmth that shifts as you scroll — the afternoon changes</td><td>Mood</td></tr>
+          <tr><td>Zero Lights</td><td>MeshBasicMaterial everywhere — all warmth comes from the palette</td><td>Choice</td></tr>
         </tbody>
       </table>
     </div>
@@ -977,15 +977,15 @@ gsap.to(proxy,{scrollTrigger:{trigger:'#about',start:'top bottom',end:'bottom ce
 gsap.to(proxy,{scrollTrigger:{trigger:'#palette',start:'top bottom',end:'bottom center',scrub:1.8,invalidateOnRefresh:true},z:12,x:-0.1,y:-0.5,lx:0,ly:-0.1,ease:'none'});
 // Act 4: Journey → push further, look down at table
 gsap.to(proxy,{scrollTrigger:{trigger:'#journey',start:'top bottom',end:'bottom center',scrub:1.8,invalidateOnRefresh:true},z:14.5,x:-0.3,y:-0.7,lx:-0.2,ly:-0.3,ease:'none'});
-// Act 5: Service → dramatic zoom to bookshelf
-gsap.to(proxy,{scrollTrigger:{trigger:'#service',start:'top bottom',end:'bottom center',scrub:1.8,invalidateOnRefresh:true},z:16.5,x:0.8,y:0.2,lx:1.2,ly:0.4,ease:'none'});
+// Act 5: How → dramatic zoom to bookshelf
+gsap.to(proxy,{scrollTrigger:{trigger:'#how',start:'top bottom',end:'bottom center',scrub:1.8,invalidateOnRefresh:true},z:16.5,x:0.8,y:0.2,lx:1.2,ly:0.4,ease:'none'});
 // Act 6: CTA → pull way back, cinematic wide
 gsap.to(proxy,{scrollTrigger:{trigger:'#cta',start:'top bottom',end:'top center',scrub:1.5,invalidateOnRefresh:true},z:8,x:0,y:0.5,lx:0,ly:0.3,ease:'none'});
 
 ScrollTrigger.refresh();
 
 /* ── SVG sketch fade: tied to scroll (goes more transparent as you scroll deep) */
-gsap.to('#sk-svg',{scrollTrigger:{trigger:'#service',start:'top bottom',end:'top top',scrub:1},opacity:.3});
+gsap.to('#sk-svg',{scrollTrigger:{trigger:'#how',start:'top bottom',end:'top top',scrub:1},opacity:.3});
 
 /* ── TONE SHIFT — exposure warms as you scroll deeper into the café ── */
 const toneProxy={exposure:1.02};
