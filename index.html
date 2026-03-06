@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shelf Light — Style DNA No. 06</title>
+<meta name="description" content="Style DNA extraction of a café-bookshop interior. 8-phase shader analysis rebuilt as a working Three.js scene with SVG sketch overlay.">
+<meta property="og:title" content="Shelf Light — Style DNA No. 06">
+<meta property="og:description" content="A café-bookshop interior dissected as a shader program. Flat unlit fills, sketch lines as a separate SVG pass.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-stopped{overflow:hidden}
+/* ══════════════════════════════════════════
+   TOKENS — café DNA palette replaces dark
+   bg         = sage wall (#B8CCCA)
+   bg2        = lighter sage (#C8D8D4)
+   text       = deep sketch ink (#2A1E1C)
+   accent     = teal (#2A8090)  ← replaces lavender
+   card       = cream (#F0E8E0) ← replaces rgba(255,255,255,.03)
+   border     = ink/10
+══════════════════════════════════════════ */
+:root{
+  --bg:      #B8CCCA;
+  --bg2:     #C8D8D4;
+  --bg3:     #D0DED8;
+  --text:    #2A1E1C;
+  --dim:     rgba(42,30,28,.55);
+  --dimmer:  rgba(42,30,28,.32);
+  --accent:  #2A8090;
+  --accent2: #1E6070;
+  --border:  rgba(42,30,28,.12);
+  --border2: rgba(42,30,28,.2);
+  --card:    rgba(240,232,224,.7);
+  --card2:   #F0E8E0;
+  --cream:   #F0E8E0;
+  --salmon:  #DEB4A0;
+  --amber:   #C07820;
+  --lav:     #C0A8BE;
+  --mauve:   #9A7070;
+  --sketch:  #3A2A28;
+  --ff:      'DM Sans', sans-serif;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:auto}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:var(--ff);font-weight:400;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none}
+/* ── CURSOR ─────────────────────────────── */
+@media (pointer: fine) {
+  body { cursor: none; }
+  a, button, .pal-card, .si { cursor: none; }
+}
+#cur-ring{
+  position:fixed;width:48px;height:48px;border-radius:50%;
+  border:1.5px solid rgba(42,128,144,.5);
+  pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:width .28s cubic-bezier(.16,1,.3,1),
+             height .28s cubic-bezier(.16,1,.3,1),
+             background .28s,border-color .28s;
+}
+#cur-dot{
+  position:fixed;width:5px;height:5px;border-radius:50%;
+  background:var(--accent);pointer-events:none;z-index:10000;
+  transform:translate(-50%,-50%);
+}
+#cur-ring.h{width:66px;height:66px;background:rgba(42,128,144,.07);border-color:var(--accent)}
+@media (pointer: coarse) {
+  #cur-ring, #cur-dot { display: none; }
+}
+/* ── THREE.JS CANVAS — fixed behind page */
+#c3d{
+  position:fixed;inset:0;width:100%;height:100%;
+  z-index:0;pointer-events:none;
+}
+/* Sketch SVG above canvas */
+#sk-svg{
+  position:fixed;inset:0;width:100%;height:100%;
+  z-index:1;pointer-events:none;
+}
+/* ── SOCIAL SIDEBAR ─────────────────────── */
+.sidebar{
+  position:fixed;bottom:0;left:24px;z-index:200;
+  display:flex;flex-direction:column;align-items:center;gap:16px;
+}
+.sidebar::after{content:'';width:1px;height:80px;background:var(--border2);display:block}
+.s-link{
+  color:var(--dimmer);display:flex;
+  transition:color .2s,transform .2s;
+}
+.s-link:hover{color:var(--accent);transform:translateY(-2px)}
+.s-link svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+/* ── RESUME PILL ────────────────────────── */
+.resume-pill{
+  position:fixed;right:0;bottom:120px;z-index:200;
+  writing-mode:vertical-rl;
+  font-size:10px;letter-spacing:.38em;text-transform:uppercase;
+  font-weight:600;color:var(--dimmer);
+  padding:8px 12px;transition:color .2s;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+}
+.resume-pill::before{content:'';width:1px;height:52px;background:var(--border2);display:block}
+.resume-pill:hover{color:var(--accent)}
+/* ── NAVBAR ─────────────────────────────── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  padding:22px clamp(32px,4vw,80px);
+  display:flex;justify-content:space-between;align-items:center;
+  transition:background .4s,border-color .4s;
+  border-bottom:1px solid transparent;
+}
+nav.scrolled{
+  background:rgba(184,204,202,.92);
+  backdrop-filter:blur(18px);
+  border-color:var(--border);
+}
+.nav-logo{font-size:17px;font-weight:700;letter-spacing:-.01em;color:var(--text)}
+.nav-logo span{color:var(--accent)}
+.nav-r{display:flex;gap:36px;align-items:center}
+.nav-link{
+  font-size:11px;letter-spacing:.15em;text-transform:uppercase;
+  font-weight:500;color:var(--dim);
+  position:relative;padding-bottom:3px;transition:color .2s;
+}
+.nav-link::after{
+  content:'';position:absolute;bottom:0;left:0;
+  width:0;height:1px;background:var(--accent);
+  transition:width .3s cubic-bezier(.16,1,.3,1);
+}
+.nav-link:hover{color:var(--text)}
+.nav-link:hover::after{width:100%}
+.nav-cta{
+  font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  font-weight:700;color:var(--cream);background:var(--accent);
+  padding:8px 20px;border-radius:6px;
+  transition:background .2s,transform .14s;
+}
+.nav-cta:hover{background:var(--accent2);transform:translateY(-1px)}
+/* ── SECTION LABEL ──────────────────────── */
+.sl{
+  display:inline-flex;align-items:center;gap:12px;
+  font-size:10px;letter-spacing:.52em;text-transform:uppercase;
+  font-weight:600;color:var(--accent);margin-bottom:20px;
+}
+.sl::before{content:'';width:22px;height:1px;background:var(--accent);display:block}
+/* ── PAGE SECTIONS ──────────────────────── */
+main{position:relative;z-index:10}
+.section{padding:130px clamp(32px,4vw,80px) 130px clamp(80px,8vw,160px)}
+/* ══════════════════════════════════════════
+   HERO
+══════════════════════════════════════════ */
+#hero{
+  height:100vh;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:0 clamp(32px,4vw,80px) 72px clamp(80px,8vw,160px);
+  position:relative;overflow:hidden;
+}
+#hero::before{
+  content:'';
+  position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:linear-gradient(
+    to top,
+    rgba(184,204,202,1)   0%,
+    rgba(184,204,202,.85) 20%,
+    rgba(184,204,202,.2)  48%,
+    transparent           70%
+  );
+}
+.hero-inner{position:relative;z-index:3}
+.hero-kicker{
+  font-size:10px;letter-spacing:.5em;text-transform:uppercase;
+  font-weight:600;color:var(--accent);margin-bottom:16px;
+  opacity:0;transform:translateY(8px);
+  transition:opacity .6s .1s,transform .6s .1s;
+}
+.hero-h1{
+  font-size:clamp(64px,9.5vw,130px);
+  font-weight:800;line-height:.84;letter-spacing:-.04em;
+  color:var(--text);margin-bottom:24px;
+  opacity:0;transform:translateY(22px);
+  transition:opacity 1s .28s cubic-bezier(.16,1,.3,1),
+             transform 1s .28s cubic-bezier(.16,1,.3,1);
+}
+.hero-h1 em{font-style:italic;color:var(--accent);font-weight:300}
+.hero-desc{
+  max-width:48ch;font-size:clamp(13px,1.1vw,15px);
+  line-height:1.9;color:var(--dim);margin-bottom:38px;
+  opacity:0;transform:translateY(10px);
+  transition:opacity .65s .5s,transform .65s .5s;
+}
+.hero-chips{
+  display:flex;flex-wrap:wrap;gap:7px;margin-bottom:40px;
+  opacity:0;transition:opacity .6s .64s;
+}
+.chip{
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  padding:5px 12px;border:.8px solid var(--border2);
+  color:var(--dim);border-radius:4px;
+  background:rgba(240,232,224,.5);
+  transition:border-color .2s,color .2s,background .2s;
+}
+.chip:hover{border-color:var(--accent);color:var(--accent);background:rgba(42,128,144,.08)}
+.hero-ctas{
+  display:flex;gap:12px;flex-wrap:wrap;
+  opacity:0;transform:translateY(8px);
+  transition:opacity .6s .8s,transform .6s .8s;
+}
+.btn-p{
+  font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:12px 28px;background:var(--accent);color:var(--cream);
+  border:none;border-radius:6px;
+  transition:background .2s,transform .14s,box-shadow .2s;
+}
+.btn-p:hover{background:var(--accent2);transform:translateY(-2px);box-shadow:0 8px 28px rgba(42,128,144,.25)}
+.btn-g{
+  font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;
+  padding:11px 28px;background:var(--cream);color:var(--text);
+  border:1px solid var(--border2);border-radius:6px;
+  transition:border-color .2s,background .2s,transform .14s;
+}
+.btn-g:hover{border-color:var(--accent);background:rgba(42,128,144,.08);transform:translateY(-2px)}
+.scroll-hint{
+  position:absolute;bottom:32px;right:clamp(32px,4vw,80px);z-index:3;
+  display:flex;flex-direction:column;align-items:center;gap:7px;
+  opacity:0;transition:opacity 1s 1.6s;
+}
+.scroll-hint span{font-size:9px;letter-spacing:.42em;text-transform:uppercase;color:var(--dim)}
+.scroll-bar{
+  width:1px;height:40px;
+  background:linear-gradient(to bottom,var(--accent),transparent);
+  animation:sba 2.2s 2s ease-in-out infinite;
+}
+@keyframes sba{0%,100%{opacity:.35}50%{opacity:1}}
+/* ══════════════════════════════════════════
+   ABOUT (analysis) — two column
+══════════════════════════════════════════ */
+#analysis{background:var(--bg2)}
+.two-col{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:clamp(48px,7vw,110px);align-items:start;max-width:1100px;
+}
+.a-title{
+  font-size:clamp(30px,3.8vw,52px);font-weight:800;
+  line-height:1.1;letter-spacing:-.03em;
+  margin-bottom:28px;color:var(--text);
+}
+.sw{
+  display:inline-block;
+  opacity:0;filter:blur(5px);transform:translateY(6px);
+  transition:opacity .5s,filter .5s,transform .5s;
+}
+.sw.in{opacity:1;filter:blur(0);transform:none}
+.a-body{font-size:15px;line-height:1.95;color:var(--dim);margin-bottom:18px}
+.a-body em{color:var(--text);font-style:italic}
+.phase-list{display:flex;flex-direction:column}
+.phase-row{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  padding:18px 0;border-bottom:1px solid var(--border);gap:24px;
+}
+.phase-row:first-child{border-top:1px solid var(--border)}
+.phase-key{
+  font-size:10px;letter-spacing:.3em;text-transform:uppercase;
+  font-weight:600;color:var(--accent);
+  white-space:nowrap;min-width:100px;padding-top:2px;
+}
+.phase-val{font-size:13px;color:var(--dim);line-height:1.65}
+/* ══════════════════════════════════════════
+   PALETTE CARDS
+══════════════════════════════════════════ */
+#palette{background:var(--bg2);padding-top:0}
+.pal-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+  gap:16px;margin-top:48px;max-width:1020px;
+}
+.pal-card{
+  position:relative;padding:30px 26px;
+  background:var(--cream);
+}
+.pal-card::before{
+  content:'';position:absolute;top:-1px;left:-1px;
+  width:18px;height:18px;
+  border-top:1.5px solid var(--accent);border-left:1.5px solid var(--accent);
+  opacity:0;animation:wca 2.4s ease-in-out infinite;
+}
+.pal-card::after{
+  content:'';position:absolute;bottom:-1px;right:-1px;
+  width:18px;height:18px;
+  border-bottom:1.5px solid var(--accent);border-right:1.5px solid var(--accent);
+  opacity:0;animation:wca 2.4s 1.2s ease-in-out infinite;
+}
+.c-tr{position:absolute;top:-1px;right:-1px;width:18px;height:18px;border-top:1.5px solid var(--accent);border-right:1.5px solid var(--accent);opacity:0;animation:wca 2.4s 1.8s ease-in-out infinite}
+.c-bl{position:absolute;bottom:-1px;left:-1px;width:18px;height:18px;border-bottom:1.5px solid var(--accent);border-left:1.5px solid var(--accent);opacity:0;animation:wca 2.4s 2.5s ease-in-out infinite}
+.pal-bdr{position:absolute;inset:0;pointer-events:none;border:1px solid transparent;animation:wfa 3.5s ease-in-out infinite}
+@keyframes wca{0%,100%{opacity:.1}45%{opacity:.9}75%{opacity:.2}}
+@keyframes wfa{
+  0%,100%{border-color:rgba(42,128,144,.05)}
+  28%{border-color:rgba(42,128,144,.28)}
+  62%{border-color:rgba(42,128,144,.1)}
+  80%{border-color:rgba(42,128,144,.32)}
+}
+.swatch{width:100%;height:52px;margin-bottom:18px;border:1px solid var(--border)}
+.pal-name{font-size:13px;font-weight:700;letter-spacing:-.01em;margin-bottom:4px;color:var(--text)}
+.pal-hex{font-size:11px;letter-spacing:.1em;color:var(--accent);margin-bottom:8px;font-family:monospace}
+.pal-role{font-size:12px;color:var(--dim);line-height:1.6}
+/* ══════════════════════════════════════════
+   TIMELINE
+══════════════════════════════════════════ */
+#phases{background:var(--bg)}
+.tl-wrap{
+  max-width:780px;margin-top:56px;
+  position:relative;padding-left:52px;
+}
+.tl-wrap::before{
+  content:'';position:absolute;left:11px;top:10px;bottom:10px;
+  width:1px;background:var(--border2);
+}
+.t-item{
+  position:relative;margin-bottom:60px;
+  opacity:0;transform:translateX(-14px);
+  transition:opacity .6s,transform .6s;
+}
+.t-item.in{opacity:1;transform:none}
+.t-dot{
+  position:absolute;left:-46px;top:8px;
+  width:14px;height:14px;border-radius:50%;
+  border:2px solid var(--dimmer);background:var(--bg);z-index:2;
+  transition:border-color .3s,background .3s,box-shadow .3s;
+}
+.t-item.in .t-dot{border-color:var(--accent)}
+.t-dot.act{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 5px rgba(42,128,144,.14)}
+.t-num{font-size:10px;letter-spacing:.35em;text-transform:uppercase;font-weight:600;color:var(--accent);margin-bottom:10px}
+.t-title{font-size:clamp(18px,2vw,24px);font-weight:800;letter-spacing:-.02em;margin-bottom:6px;color:var(--text)}
+.t-sub{font-size:13px;color:var(--accent);font-weight:500;margin-bottom:10px}
+.t-body{font-size:14px;line-height:1.85;color:var(--dim);max-width:54ch}
+/* ══════════════════════════════════════════
+   SD PROMPT
+══════════════════════════════════════════ */
+#prompt{background:var(--bg2);position:relative;overflow:hidden}
+#prompt::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 55% 50%,rgba(42,128,144,.06),transparent 65%);
+  pointer-events:none;
+}
+.p-title{
+  font-size:clamp(28px,3.5vw,44px);font-weight:800;
+  letter-spacing:-.03em;line-height:1.05;margin-bottom:18px;color:var(--text);
+}
+.p-title em{font-style:italic;color:var(--accent);font-weight:300}
+.p-desc{font-size:14px;line-height:1.9;color:var(--dim);margin-bottom:28px}
+.prompt-box{
+  background:var(--cream);border:.8px solid var(--border2);
+  padding:28px 30px;position:relative;
+}
+.prompt-box::before{
+  content:'SD PROMPT';
+  font-size:9px;letter-spacing:.45em;text-transform:uppercase;
+  font-weight:600;color:var(--accent);display:block;margin-bottom:14px;
+}
+.prompt-box p{font-style:italic;font-size:13px;line-height:2;color:var(--dim)}
+.w-table{width:100%;border-collapse:collapse}
+.w-table th{
+  font-size:9px;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--dimmer);font-weight:600;
+  padding:10px 0;border-bottom:1px solid var(--border);text-align:left;
+}
+.w-table td{
+  font-size:12px;color:var(--dim);
+  padding:12px 0;border-bottom:1px solid var(--border);
+  vertical-align:top;line-height:1.55;
+}
+.w-table td:first-child{color:var(--text);font-weight:600;width:150px;padding-right:16px}
+.w-table td:last-child{color:var(--accent);font-size:11px;letter-spacing:.08em}
+/* ══════════════════════════════════════════
+   TECH STACK GRID
+══════════════════════════════════════════ */
+#stack{background:var(--bg)}
+.stack-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));
+  gap:8px;max-width:880px;margin-top:52px;
+}
+.si{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:9px;padding:18px 10px 16px;
+  background:var(--cream);border:.8px solid var(--border2);
+  opacity:0;transform:scale(.88);
+  transition:opacity .4s,transform .4s,border-color .22s,background .22s;
+}
+.si.in{opacity:1;transform:scale(1)}
+.si:hover{border-color:var(--accent);background:rgba(42,128,144,.06)}
+.si-icon{font-size:22px;line-height:1}
+.si-name{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);text-align:center;line-height:1.4}
+/* ══════════════════════════════════════════
+   CTA
+══════════════════════════════════════════ */
+#cta{
+  padding:180px clamp(32px,4vw,80px);
+  text-align:center;position:relative;overflow:hidden;
+  background:var(--bg2);
+}
+#cta::before{
+  content:'';position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(42,128,144,.08),transparent 70%);
+  pointer-events:none;
+}
+.cta-sup{
+  font-size:10px;letter-spacing:.52em;text-transform:uppercase;
+  font-weight:600;color:var(--accent);margin-bottom:18px;
+}
+.cta-h{
+  font-size:clamp(48px,8vw,108px);font-weight:800;
+  letter-spacing:-.04em;line-height:.86;margin-bottom:22px;color:var(--text);
+}
+.cta-h em{font-style:italic;color:var(--accent);font-weight:300}
+.cta-sub{font-size:15px;color:var(--dim);max-width:42ch;margin:0 auto 48px;line-height:1.85}
+.cta-row{display:flex;gap:13px;justify-content:center;flex-wrap:wrap}
+/* ══════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════ */
+footer{
+  padding:100px clamp(32px,4vw,80px) 70px clamp(80px,8vw,160px);
+  border-top:1px solid var(--border);
+  background:var(--bg);
+  display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;
+}
+.ft-name{font-size:clamp(38px,5.5vw,68px);font-weight:800;letter-spacing:-.04em;line-height:.88;margin-bottom:12px;color:var(--text)}
+.ft-sub{font-size:14px;color:var(--dim);margin-bottom:30px}
+.ft-email{
+  font-size:clamp(13px,1.5vw,19px);font-weight:600;color:var(--accent);
+  display:inline-flex;align-items:center;gap:7px;
+  border-bottom:1px solid rgba(42,128,144,.3);padding-bottom:3px;
+  transition:border-color .2s;
+}
+.ft-email:hover{border-color:var(--accent)}
+.ft-links{list-style:none}
+.ft-link{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 0;border-bottom:1px solid var(--border);
+  font-size:14px;font-weight:500;color:var(--dim);
+  transition:color .2s,padding-left .2s;
+}
+.ft-link:hover{color:var(--accent);padding-left:8px}
+.ft-link span{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dimmer)}
+.ft-bar{
+  grid-column:1/-1;padding-top:26px;border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
+}
+.ft-copy{font-size:11px;color:var(--dimmer);letter-spacing:.1em}
+.ft-copy span{color:var(--accent)}
+/* ── FADE-UP ────────────────────────────── */
+.fu{opacity:0;transform:translateY(18px);transition:opacity .65s,transform .65s}
+.fu.in{opacity:1;transform:none}
+/* ── REDUCED MOTION ─────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .scroll-bar { animation: none; }
+}
+/* ── RESPONSIVE ─────────────────────────── */
+@media(max-width:900px){
+  .two-col,footer{grid-template-columns:1fr}
+  .sidebar,.resume-pill{display:none}
+  .nav-r .nav-link{display:none}
+  .section{padding-left:clamp(32px,4vw,48px);padding-right:clamp(32px,4vw,48px)}
+}
+@media(max-width:600px){.pal-grid{grid-template-columns:1fr 1fr}.hero-ctas{flex-direction:column}}
+</style>
+</head>
+<body>
+<!-- THREE.JS CANVAS -->
+<canvas id="c3d"></canvas>
+<!-- SKETCH SVG OVERLAY -->
+<svg id="sk-svg" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<g fill="none" stroke="#3A2A28" stroke-linecap="round" stroke-linejoin="round">
+  <path class="sk" stroke-width=".9" opacity=".5" d="M120,60 L640,310"/>
+  <path class="sk" stroke-width=".9" opacity=".5" d="M1320,30 L640,310"/>
+  <path class="sk" stroke-width=".7" opacity=".44" d="M1320,170 L700,330"/>
+  <path class="sk" stroke-width=".7" opacity=".4" d="M150,140 L600,320"/>
+  <path class="sk" stroke-width=".5" opacity=".35" d="M1320,280 L760,360"/>
+  <path class="sk" stroke-width=".8" opacity=".5" d="M370,105 C370,92 388,87 392,105 C396,122 378,126 370,105"/>
+  <path class="sk" stroke-width=".6" opacity=".45" d="M385,88 L385,55"/>
+  <path class="sk" stroke-width=".8" opacity=".5" d="M920,62 C920,50 938,46 942,62 C946,77 928,80 920,62"/>
+  <path class="sk" stroke-width=".6" opacity=".45" d="M936,46 L936,18"/>
+  <path class="sk" stroke-width="1.2" opacity=".55" d="M440,305 L440,860 L608,860 L608,305 Z"/>
+  <path class="sk" stroke-width=".7" opacity=".4" d="M462,348 L586,348 L586,568 L462,568 Z"/>
+  <path class="sk" stroke-width=".7" opacity=".4" d="M462,590 L586,590 L586,820 L462,820 Z"/>
+  <path class="sk" stroke-width=".8" opacity=".45" d="M810,182 L1350,112"/>
+  <path class="sk" stroke-width=".8" opacity=".45" d="M810,336 L1350,266"/>
+  <path class="sk" stroke-width=".8" opacity=".45" d="M810,490 L1350,420"/>
+  <path class="sk" stroke-width=".5" opacity=".4" d="M835,122 L835,180"/><path class="sk" stroke-width=".5" opacity=".4" d="M856,120 L856,178"/>
+  <path class="sk" stroke-width=".5" opacity=".4" d="M875,118 L875,176"/><path class="sk" stroke-width=".5" opacity=".4" d="M910,116 L910,174"/>
+  <path class="sk" stroke-width=".5" opacity=".4" d="M950,113 L950,171"/><path class="sk" stroke-width=".5" opacity=".4" d="M1010,110 L1010,168"/>
+  <path class="sk" stroke-width=".5" opacity=".4" d="M835,276 L835,334"/><path class="sk" stroke-width=".5" opacity=".4" d="M862,273 L862,331"/>
+  <path class="sk" stroke-width=".5" opacity=".4" d="M896,270 L896,328"/><path class="sk" stroke-width=".5" opacity=".4" d="M938,267 L938,325"/>
+  <path class="sk" stroke-width="1.3" opacity=".5" d="M780,488 L1380,415 L1380,900"/>
+  <path class="sk" stroke-width=".7" opacity=".4" d="M790,486 L1370,413"/>
+  <path class="sk" stroke-width="1.0" opacity=".5" d="M300,595 L900,595"/>
+  <path class="sk" stroke-width=".8" opacity=".5" d="M380,572 C380,558 408,558 408,572 C408,586 380,586 380,572"/>
+  <path class="sk" stroke-width=".6" opacity=".44" d="M408,570 C417,568 420,573 418,579"/>
+  <path class="sk" stroke-width=".8" opacity=".5" d="M658,582 C658,568 686,568 686,582 C686,596 658,596 658,582"/>
+  <path class="sk" stroke-width=".6" opacity=".44" d="M686,580 C695,578 698,583 696,589"/>
+  <path class="sk" stroke-width=".6" opacity=".4" d="M468,582 L592,580 L596,600 L472,602 Z"/>
+  <path class="sk" stroke-width=".9" opacity=".45" d="M160,640 L200,530 L360,530 L400,645"/>
+  <path class="sk" stroke-width=".7" opacity=".4" d="M196,528 L208,448 L352,448 L364,528"/>
+  <path class="sk" stroke-width=".6" opacity=".35" d="M218,650 L208,900"/><path class="sk" stroke-width=".6" opacity=".35" d="M378,645 L390,900"/>
+  <path class="sk" stroke-width=".9" opacity=".45" d="M920,680 L970,555 L1140,555 L1182,695"/>
+  <path class="sk" stroke-width=".7" opacity=".4" d="M965,552 L980,468 L1130,468 L1146,552"/>
+  <path class="sk" stroke-width=".6" opacity=".35" d="M980,685 L972,900"/><path class="sk" stroke-width=".6" opacity=".35" d="M1174,690 L1185,900"/>
+  <path class="sk" stroke-width=".8" opacity=".38" d="M0,800 C300,782 700,774 1400,752"/>
+  <path class="sk" stroke-width=".8" opacity=".42" d="M0,185 L195,185"/><path class="sk" stroke-width=".8" opacity=".42" d="M0,338 L198,328"/>
+  <path class="sk" stroke-width=".5" opacity=".35" d="M22,195 L22,336"/><path class="sk" stroke-width=".5" opacity=".35" d="M45,193 L45,334"/>
+  <path class="sk" stroke-width=".5" opacity=".35" d="M72,191 L72,332"/><path class="sk" stroke-width=".5" opacity=".35" d="M108,189 L108,330"/>
+</g>
+</svg>
+<!-- CURSOR -->
+<div id="cur-ring"></div>
+<div id="cur-dot"></div>
+<!-- SOCIAL SIDEBAR -->
+<aside class="sidebar">
+  <a href="https://github.com/lapbrian2" class="s-link" title="GitHub" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg></a>
+  <a href="https://www.linkedin.com/in/brian-lapinski/" class="s-link" title="LinkedIn" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+  <a href="https://brian-lapinski-portfolio.vercel.app/" class="s-link" title="Portfolio" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></a>
+</aside>
+<a href="#" class="resume-pill">Resume</a>
+<!-- NAVBAR -->
+<nav id="nav">
+  <a href="#" class="nav-logo">Brian <span>Lapinski</span></a>
+  <div class="nav-r">
+    <a href="#analysis" class="nav-link">Analysis</a>
+    <a href="#phases" class="nav-link">Process</a>
+    <a href="#prompt" class="nav-link">Output</a>
+    <a href="mailto:hello@brianlap.com" class="nav-cta">Hire Me →</a>
+  </div>
+</nav>
+<main>
+<!-- ══ HERO ══ -->
+<section id="hero">
+  <div class="hero-inner">
+    <p class="hero-kicker" id="h0">Style DNA — Extraction No. 06</p>
+    <h1 class="hero-h1" id="h1">SHELF<br><em>LIGHT</em></h1>
+    <p class="hero-desc" id="h2">A café-bookshop interior dissected as a shader program. Flat unlit fills, sketch lines as a separate SVG pass, single-point perspective. The shadow is a mauve polygon.</p>
+    <div class="hero-chips" id="h3">
+      <span class="chip">Unlit · MeshBasicMaterial</span>
+      <span class="chip">SVG Sketch Overlay</span>
+      <span class="chip">Discrete Color Field</span>
+      <span class="chip">Single-Point Perspective</span>
+      <span class="chip">Zero Noise</span>
+    </div>
+    <div class="hero-ctas" id="h4">
+      <a href="#analysis" class="btn-p">Read the Analysis</a>
+      <a href="#prompt" class="btn-g">View SD Prompt</a>
+    </div>
+  </div>
+  <div class="scroll-hint" id="h5"><span>Scroll</span><div class="scroll-bar"></div></div>
+</section>
+<!-- ══ ANALYSIS ══ -->
+<section id="analysis" class="section">
+  <div class="two-col">
+    <div>
+      <p class="sl fu">Shader Analysis</p>
+      <h2 class="a-title" id="at">The sketch lines are the noise layer.</h2>
+      <p class="a-body" id="ab0">Most 3D scenes compute lighting per-fragment. This extraction found the opposite: <em>every surface is MeshBasicMaterial</em> — no diffuse, no specular, no environmental light anywhere in the scene.</p>
+      <p class="a-body" id="ab1">The "noise layer" in Phase 3 isn't a noise function. It's gestural pen marks drawn as SVG paths at z-index 2 above the WebGL canvas. Each mark has a slight positional drift from the geometry underneath — the natural registration error of drawing over a reference.</p>
+      <p class="a-body" id="ab2">The color field is purely position-driven. The <em>teal bar counter</em> is the sole high-saturation element in an otherwise 0.45-saturation world — the chromatic anchor that makes everything else recede.</p>
+    </div>
+    <div>
+      <div class="phase-list">
+        <div class="phase-row"><span class="phase-key">Phase 1</span><span class="phase-val">Single-point perspective. Vanishing point upper-left. Hard clip edges. No distortion. Zero symmetry.</span></div>
+        <div class="phase-row"><span class="phase-key">Phase 2</span><span class="phase-val">Rectangles dominant. Shelf slabs, counter slab, chair armature shells. Book spine arrays. Hard union only.</span></div>
+        <div class="phase-row"><span class="phase-key">Phase 3</span><span class="phase-val">Zero noise on fills. Sketch lines = gestural SVG pass above canvas. Darken multiply ~55%. Draws in via strokeDashoffset on load.</span></div>
+        <div class="phase-row"><span class="phase-key">Phase 5</span><span class="phase-val">Hard composite fills. Sketch SVG: multiply layer. Shadow: flat mauve PlaneGeometry 0.01 units above floor.</span></div>
+        <div class="phase-row"><span class="phase-key">Phase 6</span><span class="phase-val">UNLIT. MeshBasicMaterial everywhere. No lights. ACESFilmic tone mapping for warmth only. Shadow = geometry.</span></div>
+        <div class="phase-row"><span class="phase-key">Phase 8</span><span class="phase-val">SVG paths draw in on load (GSAP 16ms stagger). Camera drifts 0.1Hz ±0.06. Scroll proxy z=6.5→15.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ══ PALETTE CARDS ══ -->
+<section id="palette" class="section" style="padding-top:0">
+  <p class="sl fu">Color Field — Phase 4</p>
+  <div class="pal-grid">
+    <div class="pal-card fu"><div class="pal-bdr"></div><div class="c-tr"></div><div class="c-bl"></div><div class="swatch" style="background:#B8CCCA"></div><div class="pal-name">Sage</div><div class="pal-hex">#B8CCCA</div><div class="pal-role">Back wall · Ceiling · Primary atmosphere</div></div>
+    <div class="pal-card fu" style="transition-delay:.06s"><div class="pal-bdr"></div><div class="c-tr"></div><div class="c-bl"></div><div class="swatch" style="background:#DEB4A0"></div><div class="pal-name">Salmon</div><div class="pal-hex">#DEB4A0</div><div class="pal-role">Right wall · Warm architectural mass</div></div>
+    <div class="pal-card fu" style="transition-delay:.12s"><div class="pal-bdr"></div><div class="c-tr"></div><div class="c-bl"></div><div class="swatch" style="background:#2A8090"></div><div class="pal-name">Teal</div><div class="pal-hex">#2A8090</div><div class="pal-role">Bar counter · Chromatic anchor · Max saturation</div></div>
+    <div class="pal-card fu" style="transition-delay:.18s"><div class="pal-bdr"></div><div class="c-tr"></div><div class="c-bl"></div><div class="swatch" style="background:#C07820"></div><div class="pal-name">Amber</div><div class="pal-hex">#C07820</div><div class="pal-role">Shelf planks · Structural horizontal bands</div></div>
+    <div class="pal-card fu" style="transition-delay:.24s"><div class="pal-bdr"></div><div class="c-tr"></div><div class="c-bl"></div><div class="swatch" style="background:#C0A8BE"></div><div class="pal-name">Lavender</div><div class="pal-hex">#C0A8BE</div><div class="pal-role">Shelf backing panel · Recessive zone</div></div>
+    <div class="pal-card fu" style="transition-delay:.30s"><div class="pal-bdr"></div><div class="c-tr"></div><div class="c-bl"></div><div class="swatch" style="background:#9A7070"></div><div class="pal-name">Mauve</div><div class="pal-hex">#9A7070</div><div class="pal-role">Floor shadow plane · Geometry-as-shadow</div></div>
+    <div class="pal-card fu" style="transition-delay:.36s"><div class="pal-bdr"></div><div class="c-tr"></div><div class="c-bl"></div><div class="swatch" style="background:#F0E8E0;border-color:rgba(42,30,28,.15)"></div><div class="pal-name">Cream</div><div class="pal-hex">#F0E8E0</div><div class="pal-role">Table · Cups · Paper stacks</div></div>
+    <div class="pal-card fu" style="transition-delay:.42s"><div class="pal-bdr"></div><div class="c-tr"></div><div class="c-bl"></div><div class="swatch" style="background:#3A2A28"></div><div class="pal-name">Sketch Ink</div><div class="pal-hex">#3A2A28</div><div class="pal-role">SVG overlay stroke · Chair legs · Lines</div></div>
+  </div>
+</section>
+<!-- ══ PHASES TIMELINE ══ -->
+<section id="phases" class="section">
+  <p class="sl fu">8-Phase Extraction</p>
+  <div class="tl-wrap">
+    <div class="t-item"><div class="t-dot act"></div><p class="t-num">Phase 1 — Coordinate Space</p><h3 class="t-title">Single-Point Perspective</h3><p class="t-sub">Cartesian · Vanishing upper-left · No distortion</p><p class="t-body">Vanishing point toward the door region. Cartesian architectural grid. Hard clip at all edges — no vignette, no fade. Zero distortion functions. Zero symmetry operators. Camera placed inside the room at table height.</p></div>
+    <div class="t-item"><div class="t-dot"></div><p class="t-num">Phase 2 — Distance Fields</p><h3 class="t-title">Rectangle Arrays · Shell Modifier</h3><p class="t-sub">BoxGeometry dominant · Hard union only</p><p class="t-body">Dominant shape language: boxes. Shelf slabs (thin, horizontal), counter slab (thick), book spine arrays (thin column, repeated). Chairs use a shell pattern — wireframe armature with flat cushion fills. Hard union operations only, no smooth blending anywhere.</p></div>
+    <div class="t-item"><div class="t-dot"></div><p class="t-num">Phase 3 — Noise Profile</p><h3 class="t-title">Zero Noise · SVG Marks As Overlay</h3><p class="t-sub">No noise functions · Gestural SVG · strokeDashoffset</p><p class="t-body">No noise functions on any fill surface. The perceived texture is entirely the SVG sketch layer: pen marks on a fixed z-index layer above the WebGL canvas. Each path animates from invisible to visible via strokeDashoffset on load. 16ms stagger per mark.</p></div>
+    <div class="t-item"><div class="t-dot"></div><p class="t-num">Phase 4 — Color Field</p><h3 class="t-title">Discrete Position-Driven Fills</h3><p class="t-sub">8 hex values · One color per region · No mixing</p><p class="t-body">Eight hex values, each assigned to exactly one spatial region. No gradient between surfaces. No color mixing. The teal bar counter runs at full saturation while everything else sits at approximately 0.45 — one chromatic focal point that pulls the eye.</p></div>
+    <div class="t-item"><div class="t-dot"></div><p class="t-num">Phases 5 + 6 — Blend + Lighting</p><h3 class="t-title">Unlit · Shadow as Geometry</h3><p class="t-sub">MeshBasicMaterial · No lights · Mauve polygon</p><p class="t-body">MeshBasicMaterial on every single surface. No lights added to the Three.js scene. ACESFilmic tone mapping for warmth only. The floor shadow is a flat mauve PlaneGeometry sitting 0.01 units above the floor. Sketch SVG: CSS multiply blend mode.</p></div>
+    <div class="t-item"><div class="t-dot"></div><p class="t-num">Phase 8 — Temporal</p><h3 class="t-title">0.1Hz Drift · Draw-In Animation</h3><p class="t-sub">Sine drift · SVG sequential reveal · Scroll proxy</p><p class="t-body">Two animations exist. On load: all SVG sketch paths draw in sequentially via GSAP, 16ms stagger. Camera: continuous sine drift at 0.1Hz amplitude ±0.06 units — imperceptible motion that makes the scene feel alive. Scroll drives the proxy from z=6.5 through z=15.</p></div>
+  </div>
+</section>
+<!-- ══ SD PROMPT ══ -->
+<section id="prompt" class="section">
+  <div class="two-col">
+    <div>
+      <p class="sl fu">Assembled SD Prompt</p>
+      <h2 class="p-title fu" style="transition-delay:.1s">From shader<br>to <em>generative</em><br>output.</h2>
+      <p class="p-desc fu" style="transition-delay:.2s">Each extraction phase maps directly to a descriptor cluster. Style elements at 1.4. Subject matter at 1.3. Always paragraph format — no code blocks, no backticks.</p>
+      <div class="prompt-box fu" style="transition-delay:.3s">
+        <p>(gestural editorial illustration, flat color planes, sketch lines as separate additive overlay pass:1.4), (single-point perspective architectural interior, vanishing point upper-left:1.4), (café bookshop interior, long table with coffee cups, wire-frame chairs with flat teal cushions, three rows of bookshelves right wall:1.3), (unlit flat fills, MeshBasicMaterial aesthetic, zero specular, zero diffuse shading:1.4), (discrete position-driven color field, sage walls, salmon right mass, deep teal bar counter as chromatic anchor, amber shelf planks, lavender backing panel, mauve floor shadow polygon, cream table surface:1.4), (gestural pen marks over flat fills, slight registration drift, darken multiply overlay:1.4), (lifted blacks, muted palette 0.45 saturation except teal, ACESFilmic warmth:1.3)</p>
+      </div>
+    </div>
+    <div>
+      <p class="sl fu" style="transition-delay:.1s">Weight Guide</p>
+      <table class="w-table fu" style="transition-delay:.2s">
+        <thead><tr><th>Descriptor Group</th><th>Content</th><th>Weight</th></tr></thead>
+        <tbody>
+          <tr><td>Style register</td><td>Gestural editorial illustration, flat color planes, sketch overlay</td><td>1.4</td></tr>
+          <tr><td>Coordinate space</td><td>Single-point perspective, vanishing upper-left</td><td>1.4</td></tr>
+          <tr><td>Subject matter</td><td>Café-bookshop, table, chairs, bookshelves, cups</td><td>1.3</td></tr>
+          <tr><td>Lighting model</td><td>Unlit flat fills, zero specular, zero diffuse</td><td>1.4</td></tr>
+          <tr><td>Color field</td><td>Sage, salmon, teal anchor, amber, lavender, mauve, cream</td><td>1.4</td></tr>
+          <tr><td>Noise / texture</td><td>Gestural pen marks, registration drift, multiply</td><td>1.4</td></tr>
+          <tr><td>Post-process</td><td>Lifted blacks, 0.45 saturation, ACESFilmic warmth</td><td>1.3</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+<!-- ══ STACK ══ -->
+<section id="stack" class="section">
+  <p class="sl fu">Tools Used</p>
+  <h2 class="fu" style="font-size:clamp(28px,3.5vw,44px);font-weight:800;letter-spacing:-.03em;transition-delay:.1s;color:var(--text)">This extraction's stack</h2>
+  <div class="stack-grid">
+    <div class="si"><div class="si-icon">⬡</div><div class="si-name">Three.js</div></div>
+    <div class="si"><div class="si-icon">○</div><div class="si-name">Lenis</div></div>
+    <div class="si"><div class="si-icon">◈</div><div class="si-name">GSAP 3</div></div>
+    <div class="si"><div class="si-icon">◻</div><div class="si-name">ScrollTrigger</div></div>
+    <div class="si"><div class="si-icon">⬡</div><div class="si-name">MeshBasic</div></div>
+    <div class="si"><div class="si-icon">∿</div><div class="si-name">SVG Paths</div></div>
+    <div class="si"><div class="si-icon">○</div><div class="si-name">Dashoffset</div></div>
+    <div class="si"><div class="si-icon">△</div><div class="si-name">ACESFilmic</div></div>
+    <div class="si"><div class="si-icon">✦</div><div class="si-name">Style DNA</div></div>
+    <div class="si"><div class="si-icon">◈</div><div class="si-name">Phase 6 Unlit</div></div>
+    <div class="si"><div class="si-icon">⟨⟩</div><div class="si-name">Proxy Pattern</div></div>
+    <div class="si"><div class="si-icon">▣</div><div class="si-name">DM Sans</div></div>
+  </div>
+</section>
+<!-- ══ CTA ══ -->
+<section id="cta">
+  <p class="cta-sup fu">Style DNA Series</p>
+  <h2 class="cta-h fu" style="transition-delay:.1s">Next<br>extraction<br><em>incoming.</em></h2>
+  <p class="cta-sub fu" style="transition-delay:.22s">Six worlds built from source images. Each one a working Three.js scene from an 8-phase shader analysis. Commission your own.</p>
+  <div class="cta-row fu" style="transition-delay:.34s">
+    <a href="mailto:hello@brianlap.com" class="btn-g">Play With Me →</a>
+    <a href="mailto:hello@brianlap.com" class="btn-p">Hire Me →</a>
+  </div>
+</section>
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div>
+    <h2 class="ft-name">Brian<br>Lapinski</h2>
+    <p class="ft-sub">AI Artist · Creative Developer · Systems Thinker</p>
+    <a href="mailto:hello@brianlap.com" class="ft-email">hello@brianlap.com ↗</a>
+  </div>
+  <div>
+    <ul class="ft-links">
+      <li><a href="https://www.linkedin.com/in/brian-lapinski/" class="ft-link" target="_blank" rel="noopener noreferrer">LinkedIn <span>↗ Connect</span></a></li>
+      <li><a href="https://github.com/lapbrian2" class="ft-link" target="_blank" rel="noopener noreferrer">GitHub <span>↗ Code</span></a></li>
+      <li><a href="https://brian-lapinski-portfolio.vercel.app/" class="ft-link" target="_blank" rel="noopener noreferrer">Art Portfolio <span>↗ Gallery</span></a></li>
+      <li><a href="https://ml-systems-universe.vercel.app/" class="ft-link" target="_blank" rel="noopener noreferrer">ML Systems Universe <span>↗ Explore</span></a></li>
+    </ul>
+  </div>
+  <div class="ft-bar">
+    <span class="ft-copy">© 2025 Brian Lapinski</span>
+    <span class="ft-copy">Style DNA No. 06 — <span>Shelf Light</span></span>
+  </div>
+</footer>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+/* ── LENIS */
+const lenis=new Lenis({duration:1.15,easing:t=>Math.min(1,1.001-Math.pow(2,-10*t)),smoothWheel:true});
+lenis.on('scroll',ScrollTrigger.update);
+gsap.ticker.add(t=>lenis.raf(t*1000));
+gsap.ticker.lagSmoothing(0);
+/* ── CURSOR (pointer: fine only) */
+const ring=document.getElementById('cur-ring'),dot=document.getElementById('cur-dot');
+if(window.matchMedia('(pointer:fine)').matches){
+  let cx=window.innerWidth/2,cy=window.innerHeight/2,lx=cx,ly=cy;
+  window.addEventListener('mousemove',e=>{cx=e.clientX;cy=e.clientY});
+  (function ac(){lx+=(cx-lx)*.12;ly+=(cy-ly)*.12;ring.style.left=lx+'px';ring.style.top=ly+'px';dot.style.left=cx+'px';dot.style.top=cy+'px';requestAnimationFrame(ac)})();
+  document.querySelectorAll('a,button,.pal-card,.si').forEach(el=>{
+    el.addEventListener('mouseenter',()=>ring.classList.add('h'));
+    el.addEventListener('mouseleave',()=>ring.classList.remove('h'));
+  });
+}
+/* ── NAV */
+lenis.on('scroll',({scroll})=>document.getElementById('nav').classList.toggle('scrolled',scroll>50));
+/* ── THREE.JS — café DNA scene, flat fills, MeshBasicMaterial, UNLIT */
+const canvas=document.getElementById('c3d');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.setClearColor(0xB8CCCA,1);
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.02;
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,60);
+const proxy={z:6.5,x:0.3,y:0.1,lx:0.8,ly:0.2};
+const M=c=>new THREE.MeshBasicMaterial({color:c,side:THREE.FrontSide});
+const P={sage:0xB8CCCA,salmon:0xDEB4A0,teal:0x2A8090,amber:0xC07820,lav:0xC0A8BE,mauve:0x9A7070,cream:0xF0E8E0,sketch:0x3A2A28,yellow:0xD4B840,midBlue:0x8AACB8,tan:0xC0A878,ltSage:0xC8DAD8,dkTeal:0x1E6070};
+const add=(g,m,p,r)=>{const o=new THREE.Mesh(g,m);if(p)o.position.set(...p);if(r)o.rotation.set(...r);scene.add(o);return o};
+// Room box
+add(new THREE.PlaneGeometry(28,16),M(P.sage),[1,0,-7]);
+add(new THREE.PlaneGeometry(16,16),M(P.salmon),[12,0,0],[0,-Math.PI/2,0]);
+add(new THREE.PlaneGeometry(16,16),M(P.tan),[-10,0,0],[0,Math.PI/2,0]);
+add(new THREE.PlaneGeometry(28,16),M(P.ltSage),[1,8,0],[-Math.PI/2,0,0]);
+add(new THREE.PlaneGeometry(28,16),M(0xC8D8D4),[1,-4,0],[Math.PI/2,0,0]);
+// Shadow — mauve geometry (Phase 6)
+add(new THREE.PlaneGeometry(7,5),M(P.mauve),[1,-3.97,2.5],[Math.PI/2,0,0]);
+[[-1.5,4.5],[3,4.8],[0.5,1.8]].forEach(([x,z])=>add(new THREE.PlaneGeometry(1.4,1.6),M(P.mauve),[x,-3.96,z],[Math.PI/2,0,0]));
+// Door
+add(new THREE.BoxGeometry(2.4,6.2,0.08),M(P.midBlue),[-2,-0.4,-6.94]);
+[[-0.6,0.9],[0.6,0.9],[-0.6,-0.9],[0.6,-0.9]].forEach(([px,py])=>add(new THREE.BoxGeometry(0.88,1.2,0.04),M(0x7890A8),[-2+px,-0.4+py,-6.90]));
+// Teal bar — chromatic anchor
+add(new THREE.BoxGeometry(9.5,2.4,0.1),M(P.teal),[6,-2.0,-0.5]);
+add(new THREE.BoxGeometry(9.5,0.12,4),M(P.cream),[6,-0.82,-2.55]);
+add(new THREE.BoxGeometry(9.5,2.4,0.1),M(P.dkTeal),[6,-2.0,-4.54]);
+add(new THREE.BoxGeometry(3.2,1.5,0.09),M(P.yellow),[2.8,-1.52,-0.52]);
+// Shelves
+add(new THREE.BoxGeometry(9.5,8.5,0.06),M(P.lav),[6,1.8,-6.92]);
+[-0.5,1.9,4.4].forEach(y=>add(new THREE.BoxGeometry(9.5,0.1,0.6),M(P.amber),[6,y,-6.64]));
+const BC=[P.teal,P.cream,P.amber,P.salmon,P.lav,P.sage,P.yellow,P.midBlue,0x8A6858,0xC84840,0xA8C4B8,0xE89878];
+function bookRow(sx,y,z,n){let x=sx;for(let i=0;i<n;i++){const w=0.14+Math.random()*.12,h=0.9+Math.random()*.6;add(new THREE.BoxGeometry(w,h,0.5),M(BC[(i+Math.floor(y*3))%BC.length]),[x+w/2,y+h/2,z]);x+=w+0.01+Math.random()*.015;if(x>10.8)break;}}
+bookRow(1.8,-0.5,-6.61,26);bookRow(1.8,1.9,-6.61,28);bookRow(1.8,4.4,-6.61,22);
+// Left bookcase
+add(new THREE.BoxGeometry(0.07,7.5,6.5),M(P.tan),[-9.6,0.4,-2.5]);
+[-0.3,2.0,4.2].forEach(y=>add(new THREE.BoxGeometry(0.55,0.09,6.5),M(P.amber),[-9.36,y,-2.5]));
+// Table
+add(new THREE.BoxGeometry(4.2,0.09,2.2),M(P.cream),[0.8,-0.45,2.5]);
+[[1.9,0.58],[1.9,-0.58],[-1.9,0.58],[-1.9,-0.58]].forEach(([tx,tz])=>add(new THREE.CylinderGeometry(0.04,0.04,3.5,8),M(P.sketch),[0.8+tx,-2.2,2.5+tz]));
+[[-.6,2.0],[1.3,2.9]].forEach(([cx2,cz])=>{add(new THREE.CylinderGeometry(0.13,0.11,0.25,12),M(P.cream),[cx2,-0.3,cz]);add(new THREE.CylinderGeometry(0.22,0.2,0.03,12),M(0xE8E0D8),[cx2,-0.43,cz]);});
+add(new THREE.BoxGeometry(0.9,0.02,0.65),M(0xE4EEF0),[0.5,-0.41,2.5]);
+// Chairs
+function chair(cx2,cz,ry,sc){
+  sc=sc||1;const g=new THREE.Group();
+  g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(0.82*sc,0.07,0.74*sc),M(P.teal))));
+  const b=new THREE.Mesh(new THREE.BoxGeometry(0.82*sc,0.88*sc,0.07),M(P.teal));b.position.set(0,0.48*sc,-0.34*sc);g.add(b);
+  [[0.33*sc,0.35*sc],[0.33*sc,-0.35*sc],[-0.33*sc,0.35*sc],[-0.33*sc,-0.35*sc]].forEach(([lx2,lz])=>{const leg=new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.025,3.3*sc,8),M(P.sketch));leg.position.set(lx2,-1.65*sc,lz);g.add(leg);});
+  g.position.set(cx2,-0.9,cz);g.rotation.y=ry||0;scene.add(g);
+}
+chair(-1.4,4.3,-0.12);chair(2.8,4.6,0.10);chair(-0.2,2.0,0.06,0.88);chair(1.8,1.8,-0.04,0.88);
+// Pendants
+[[-2.5,-1.5],[2.5,-1.5]].forEach(([px,pz])=>{
+  add(new THREE.TorusGeometry(0.26,0.03,6,20),M(0x8898A8),[px,6.2,pz]);
+  add(new THREE.CylinderGeometry(0.015,0.015,2,6),M(0x8898A8),[px,7.2,pz]);
+});
+/* ── SCROLL PROXY */
+gsap.to(proxy,{scrollTrigger:{trigger:'#analysis',start:'top bottom',end:'top top',scrub:1.5,invalidateOnRefresh:true},z:11,x:0.1,y:-0.4,lx:0.3,ly:0});
+gsap.to(proxy,{scrollTrigger:{trigger:'#phases',start:'top bottom',end:'top top',scrub:1.5,invalidateOnRefresh:true},z:15,x:-0.2,y:-0.8,lx:0,ly:-0.3});
+ScrollTrigger.refresh();
+/* ── RENDER LOOP */
+const clock=new THREE.Clock();let mx=0,my=0,sx=0,sy=0;
+window.addEventListener('mousemove',e=>{mx=(e.clientX/window.innerWidth-.5)*2;my=(e.clientY/window.innerHeight-.5)*2;});
+(function tick(){
+  requestAnimationFrame(tick);
+  const t=clock.getElapsedTime();
+  sx+=(mx-sx)*.025;sy+=(my-sy)*.025;
+  camera.position.set(proxy.x+sx*.14+Math.sin(t*.628)*.06,proxy.y+sy*.07+Math.sin(t*.22)*.025,proxy.z);
+  camera.lookAt(proxy.lx+sx*.05,proxy.ly,-2);
+  renderer.render(scene,camera);
+})();
+/* ── HERO REVEAL */
+window.addEventListener('load',()=>{
+  ['h0','h1','h2','h3','h4','h5'].forEach((id,i)=>setTimeout(()=>{const el=document.getElementById(id);if(el){el.style.opacity='1';el.style.transform='none';}},100+i*145));
+  document.querySelectorAll('.sk').forEach(p=>{try{const l=p.getTotalLength();p.style.strokeDasharray=l;p.style.strokeDashoffset=l;}catch(e){}});
+  gsap.to('.sk',{strokeDashoffset:0,duration:.04,stagger:{each:.016,from:'start'},ease:'none',delay:.35});
+});
+/* ── SPLIT-WORD BLUR REVEAL */
+function splitReveal(id){
+  const el=document.getElementById(id);if(!el)return;
+  const words=el.textContent.split(/\s+/).filter(Boolean);
+  el.textContent='';
+  words.forEach((w,i)=>{
+    const span=document.createElement('span');
+    span.className='sw';
+    span.textContent=w;
+    if(i>0)el.appendChild(document.createTextNode(' '));
+    el.appendChild(span);
+  });
+  const spans=el.querySelectorAll('.sw');
+  new IntersectionObserver(en=>{if(!en[0].isIntersecting)return;spans.forEach((w,i)=>setTimeout(()=>w.classList.add('in'),i*52));},{threshold:.15}).observe(el);
+}
+['at','ab0','ab1','ab2'].forEach(splitReveal);
+/* ── GENERIC FADE-UP + TIMELINE + STACK */
+const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.1});
+document.querySelectorAll('.fu,.t-item,.si,.pal-card').forEach(el=>io.observe(el));
+document.querySelectorAll('.si').forEach((el,i)=>{el.style.transitionDelay=i*38+'ms';});
+/* ── RESIZE + DISPOSE */
+window.addEventListener('resize',()=>{
+  camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth,window.innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  ScrollTrigger.refresh();
+});
+window.addEventListener('beforeunload',()=>{
+  ScrollTrigger.getAll().forEach(s=>s.kill());lenis.destroy();
+  scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.dispose());});
+  renderer.dispose();
+});
+</script>
+</body>
+</html>
