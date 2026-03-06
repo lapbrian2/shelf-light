@@ -1,12 +1,4 @@
 /* ══════════════════════════════════════════
-   SCROLL VELOCITY SKEW — physical weight during fast scroll
-══════════════════════════════════════════ */
-.section{
-  transform:skewY(var(--scroll-skew, 0deg));
-  will-change:transform;
-}
-
-/* ══════════════════════════════════════════
    HERO
 ══════════════════════════════════════════ */
 #hero{

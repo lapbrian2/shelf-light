@@ -57,7 +57,6 @@ log.info('Shelf Light initialized');
 ══════════════════════════════════════════ */
 const clock = new THREE.Clock();
 const skSvgEl = document.getElementById('sk-svg');
-let smoothedSkew = 0; // lerps toward velocity-based target, settles back to 0
 
 (function tick() {
   requestAnimationFrame(tick);
@@ -72,20 +71,10 @@ let smoothedSkew = 0; // lerps toward velocity-based target, settles back to 0
     proxy.y + mouse.sy2 * .14 + Math.sin(t * .22) * .025,
     proxy.z
   );
-  camera.lookAt(proxy.lx + mouse.sx2 * .08, proxy.ly, -2);
-
-  // ── Velocity-based content skew ──
-  // Content tilts slightly during fast scroll, settles back to 0
-  const skewTarget = Math.max(-4, Math.min(4, scrollState.velocity * 0.8));
-  smoothedSkew += (skewTarget - smoothedSkew) * 0.08; // smooth lerp
-  // Kill micro-jitter when nearly settled
-  if (Math.abs(smoothedSkew) < 0.001) smoothedSkew = 0;
-  document.documentElement.style.setProperty('--scroll-skew', smoothedSkew + 'deg');
+  camera.lookAt(proxy.lx + mouse.sx2 * .08, proxy.ly, proxy.lz);
 
   // SVG sketch — parallax OPPOSITE to camera (creates layered depth)
-  // + velocity-based scale: shrinks slightly during fast scroll for physical weight
-  const velScale = Math.max(0.97, 1 - Math.abs(scrollState.velocity) * 0.008);
-  skSvgEl.style.transform = 'translate(' + (-mouse.sx2 * 5) + 'px,' + (mouse.sy2 * 3.5) + 'px) scale(' + velScale + ')';
+  skSvgEl.style.transform = 'translate(' + (-mouse.sx2 * 5) + 'px,' + (mouse.sy2 * 3.5) + 'px)';
 
   // Pendant sway
   pendants.forEach((p, i) => {

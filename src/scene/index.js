@@ -13,7 +13,7 @@ renderer.toneMappingExposure = 1.02;
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 60);
-const proxy = { z: 3.5, x: -0.4, y: -0.2, lx: -0.4, ly: -0.3 };
+const proxy = { z: 3.5, x: -0.4, y: -0.2, lx: -0.4, ly: -0.3, lz: 2.65 };
 
 const M = c => new THREE.MeshBasicMaterial({ color: c, side: THREE.FrontSide });
 const P = {
