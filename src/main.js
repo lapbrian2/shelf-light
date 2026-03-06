@@ -18,14 +18,33 @@ import { lenis, ScrollTrigger, initNav } from './scroll.js';
 import { mouse, initCursor } from './cursor.js';
 import { initCameraChoreography, initHeroReveal, initObservers } from './animations.js';
 import { initSoundToggle, disposeAudio } from './audio.js';
+import { initForm } from './form.js';
+import { log, initErrorHandlers, initWebGLRecovery, initFPSCounter, initRenderStats } from './debug.js';
 
 /* ── Init ── */
+initErrorHandlers();
+initWebGLRecovery(document.getElementById('c3d'), renderer, () => {
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0xB8CCCA, 1);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.02;
+  log.info('Renderer state restored after context loss.');
+});
+
 initNav();
 initCursor();
 initCameraChoreography();
 initHeroReveal();
 initObservers();
 initSoundToggle();
+initForm();
+
+// Dev-only panels (tree-shaken in production)
+initFPSCounter();
+initRenderStats(renderer);
+
+log.info('Shelf Light initialized');
 
 /* ══════════════════════════════════════════
    RENDER LOOP

@@ -88,7 +88,7 @@
     <a href="#about" class="nav-link" data-section="about">About</a>
     <a href="#palette" class="nav-link" data-section="palette">Palette</a>
     <a href="#journey" class="nav-link" data-section="journey">Journey</a>
-    <a href="mailto:hello@brianlap.com" class="nav-cta">Commission →</a>
+    <a href="#cta" class="nav-cta">Commission →</a>
   </div>
 </nav>
 <main>
@@ -108,7 +108,7 @@
     </div>
     <div class="hero-ctas" id="h4">
       <a href="#about" class="btn-p">Explore the World</a>
-      <a href="mailto:hello@brianlap.com" class="btn-g">Commission Yours</a>
+      <a href="#cta" class="btn-g">Commission Yours</a>
     </div>
   </div>
   <div class="scroll-hint" id="h5"><span>Scroll</span><div class="scroll-bar"></div></div>
@@ -215,8 +215,48 @@
   <p class="cta-sup fu">Your Image. Your World.</p>
   <h2 class="cta-h fu" style="transition-delay:.1s">Send me<br>an image.<br><em>Get a world.</em></h2>
   <p class="cta-sub fu" style="transition-delay:.22s">Illustrations, paintings, photographs — any image with a strong visual identity. I'll build you a living, interactive 3D experience from it.</p>
-  <div class="cta-row fu" style="transition-delay:.34s">
-    <a href="mailto:hello@brianlap.com" class="btn-p">Commission a World →</a>
+
+  <form id="commission-form" class="commission-form fu" style="transition-delay:.34s" novalidate>
+    <!-- Honeypot — hidden from humans, bots auto-fill it -->
+    <input type="text" name="_hp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0;height:0;width:0">
+
+    <div class="form-row">
+      <div class="form-field">
+        <label for="cf-name">Name</label>
+        <input type="text" id="cf-name" name="name" required minlength="2" maxlength="100" placeholder="Your name" autocomplete="name">
+      </div>
+      <div class="form-field">
+        <label for="cf-email">Email</label>
+        <input type="email" id="cf-email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email">
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="cf-budget">Budget Range <span class="optional">(optional)</span></label>
+      <select id="cf-budget" name="budget">
+        <option value="">Prefer not to say</option>
+        <option value="Under $500">Under $500</option>
+        <option value="$500 – $1,000">$500 – $1,000</option>
+        <option value="$1,000 – $3,000">$1,000 – $3,000</option>
+        <option value="$3,000+">$3,000+</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label for="cf-desc">Tell me about your project</label>
+      <textarea id="cf-desc" name="description" required minlength="10" maxlength="2000" rows="4" placeholder="Describe the image, the feeling, and what you'd want the 3D world to convey..."></textarea>
+    </div>
+
+    <button type="submit" class="btn-p form-submit">Send Message →</button>
+    <div class="form-feedback"></div>
+  </form>
+
+  <div class="cta-alt fu" style="transition-delay:.46s">
+    <span>or email directly:</span>
+    <a href="mailto:hello@brianlap.com" class="ft-email">hello@brianlap.com ↗</a>
+  </div>
+
+  <div class="cta-row fu" style="transition-delay:.58s">
     <a href="https://brian-lapinski-portfolio.vercel.app/" class="btn-g" target="_blank" rel="noopener noreferrer">See More Work →</a>
   </div>
 </section>
