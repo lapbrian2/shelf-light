@@ -109,6 +109,85 @@ add(new THREE.BoxGeometry(0.55, 1.3, 0.45), M(P.lav), [8.8, -1.15, -3.7]);
 add(new THREE.BoxGeometry(0.95, 0.01, 0.65), M(0xE8E4DC), [0.0, -0.40, 2.1]);
 add(new THREE.BoxGeometry(0.6, 0.01, 0.45), M(P.cream), [-1.2, -0.40, 3.1]);
 
+// ── Open book on table (focal vignette for Journey) ──
+const openBook = new THREE.Group();
+const pageMat = new THREE.MeshBasicMaterial({ color: 0xFAF6F0, side: THREE.DoubleSide });
+const coverMat = new THREE.MeshBasicMaterial({ color: P.teal, side: THREE.DoubleSide });
+// Left page
+const lPage = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.56), pageMat);
+lPage.rotation.set(-Math.PI / 2, 0, 0.08);
+lPage.position.set(-0.22, 0.02, 0);
+openBook.add(lPage);
+// Right page
+const rPage = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.56), pageMat);
+rPage.rotation.set(-Math.PI / 2, 0, -0.08);
+rPage.position.set(0.22, 0.02, 0);
+openBook.add(rPage);
+// Spine
+const spine = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.03, 0.56), coverMat);
+spine.position.set(0, 0.0, 0);
+openBook.add(spine);
+// Cover edges (thin strips peeking under pages)
+const lCover = new THREE.Mesh(new THREE.PlaneGeometry(0.44, 0.58), coverMat);
+lCover.rotation.set(-Math.PI / 2, 0, 0.1);
+lCover.position.set(-0.23, -0.005, 0);
+openBook.add(lCover);
+const rCover = new THREE.Mesh(new THREE.PlaneGeometry(0.44, 0.58), coverMat);
+rCover.rotation.set(-Math.PI / 2, 0, -0.1);
+rCover.position.set(0.23, -0.005, 0);
+openBook.add(rCover);
+// Text lines on pages (tiny dark rectangles)
+for (let i = 0; i < 6; i++) {
+  const lineW = 0.22 + Math.random() * 0.12;
+  const ll = new THREE.Mesh(new THREE.PlaneGeometry(lineW, 0.012), M(0xCCC4BC));
+  ll.rotation.set(-Math.PI / 2, 0, 0.08);
+  ll.position.set(-0.22, 0.025, -0.18 + i * 0.06);
+  openBook.add(ll);
+  const rl = new THREE.Mesh(new THREE.PlaneGeometry(lineW, 0.012), M(0xCCC4BC));
+  rl.rotation.set(-Math.PI / 2, 0, -0.08);
+  rl.position.set(0.22, 0.025, -0.18 + i * 0.06);
+  openBook.add(rl);
+}
+openBook.position.set(-0.4, -0.39, 2.65);
+openBook.rotation.y = 0.3;
+scene.add(openBook);
+export { openBook };
+
+// ── Steam wisps above cups (focal vignette for About) ──
+const steamMat = new THREE.MeshBasicMaterial({ color: 0xF0ECE8, transparent: true, opacity: 0.0, side: THREE.DoubleSide });
+export const steamWisps = [];
+cupPositions.forEach(cup => {
+  for (let i = 0; i < 3; i++) {
+    const wisp = new THREE.Mesh(new THREE.PlaneGeometry(0.06 + Math.random() * 0.04, 0.12 + Math.random() * 0.08), steamMat.clone());
+    wisp.position.set(cup.x + (Math.random() - 0.5) * 0.08, cup.y + 0.1 + i * 0.08, cup.z + (Math.random() - 0.5) * 0.06);
+    wisp.rotation.y = Math.random() * Math.PI;
+    scene.add(wisp);
+    steamWisps.push({ mesh: wisp, baseY: wisp.position.y, baseX: wisp.position.x, phase: Math.random() * Math.PI * 2 });
+  }
+});
+
+// ── Counter plant (focal vignette for How) ──
+const plantGroup = new THREE.Group();
+// Pot
+const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.1, 0.2, 8), M(P.salmon));
+pot.position.set(0, 0, 0);
+plantGroup.add(pot);
+// Soil
+const soil = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.03, 8), M(0x6B5E52));
+soil.position.set(0, 0.1, 0);
+plantGroup.add(soil);
+// Leaves (small tilted planes)
+const leafMat = M(0x5A9A6A);
+for (let i = 0; i < 5; i++) {
+  const leaf = new THREE.Mesh(new THREE.PlaneGeometry(0.1, 0.16), leafMat);
+  const angle = (i / 5) * Math.PI * 2;
+  leaf.position.set(Math.cos(angle) * 0.06, 0.2 + Math.random() * 0.08, Math.sin(angle) * 0.06);
+  leaf.rotation.set(-0.3 + Math.random() * 0.2, angle, 0.3 - Math.random() * 0.15);
+  plantGroup.add(leaf);
+}
+plantGroup.position.set(6.5, -0.55, -2.1);
+scene.add(plantGroup);
+
 // ── Wall frames near door ──
 add(new THREE.BoxGeometry(0.7, 0.9, 0.03), M(P.salmon), [-4.5, 1.8, -6.92]);
 add(new THREE.BoxGeometry(0.5, 0.7, 0.03), M(P.lav), [-6.0, 2.0, -6.92]);

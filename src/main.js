@@ -10,7 +10,7 @@ import './styles/responsive.css';
 
 // Scene (side-effects: creates all geometry on import)
 import { THREE, renderer, scene, camera, proxy } from './scene/index.js';
-import { allBooks } from './scene/geometry.js';
+import { allBooks, steamWisps, openBook } from './scene/geometry.js';
 import { pendants } from './scene/lights.js';
 
 // Modules
@@ -93,6 +93,21 @@ const skSvgEl = document.getElementById('sk-svg');
     const idx = Math.floor(t * 7) % allBooks.length;
     const b = allBooks[idx];
     b.mesh.rotation.z = b.baseRz + Math.sin(t * 3 + idx) * .008;
+  }
+
+  // Steam wisps — gentle rise and fade above coffee cups
+  steamWisps.forEach((s) => {
+    const cycle = (t * 0.4 + s.phase) % 3;
+    s.mesh.position.y = s.baseY + cycle * 0.12;
+    s.mesh.position.x = s.baseX + Math.sin(t * 0.7 + s.phase) * 0.02;
+    s.mesh.material.opacity = cycle < 2 ? 0.12 * (1 - cycle / 2) : 0;
+    s.mesh.rotation.z = Math.sin(t * 0.3 + s.phase) * 0.15;
+  });
+
+  // Open book — subtle page flutter
+  if (openBook) {
+    openBook.children[0].rotation.z = 0.08 + Math.sin(t * 1.2) * 0.01;
+    openBook.children[1].rotation.z = -0.08 - Math.sin(t * 1.2 + 0.5) * 0.01;
   }
 
   renderer.render(scene, camera);
