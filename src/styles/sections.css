@@ -102,7 +102,7 @@
 /* ══════════════════════════════════════════
    ABOUT — two column
 ══════════════════════════════════════════ */
-#about{background:rgba(200,216,212,.72)}
+#about{background:rgba(200,216,212,.68)}
 .two-col{
   display:grid;grid-template-columns:1fr 1fr;
   gap:clamp(48px,7vw,110px);align-items:start;max-width:1100px;
@@ -133,7 +133,7 @@
 /* ══════════════════════════════════════════
    PALETTE CARDS
 ══════════════════════════════════════════ */
-#palette{background:rgba(200,216,212,.72);padding-top:0}
+#palette{background:rgba(200,216,212,.68);padding-top:0}
 .pal-grid{
   display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
   gap:16px;margin-top:48px;max-width:1020px;
@@ -185,7 +185,7 @@
 /* ══════════════════════════════════════════
    TIMELINE
 ══════════════════════════════════════════ */
-#journey{background:rgba(184,204,202,.72)}
+#journey{background:rgba(184,204,202,.68)}
 .tl-wrap{
   max-width:780px;margin-top:56px;
   position:relative;padding-left:52px;
@@ -221,7 +221,7 @@
 /* ══════════════════════════════════════════
    HOW IT'S BUILT
 ══════════════════════════════════════════ */
-#how{background:rgba(200,216,212,.72);position:relative;overflow:hidden}
+#how{background:rgba(200,216,212,.68);position:relative;overflow:hidden}
 #how::before{
   content:'';position:absolute;inset:0;
   background:radial-gradient(ellipse at 55% 50%,rgba(42,128,144,.06),transparent 65%);
@@ -267,7 +267,7 @@
 /* ══════════════════════════════════════════
    TECH STACK GRID
 ══════════════════════════════════════════ */
-#stack{background:rgba(184,204,202,.72)}
+#stack{background:rgba(184,204,202,.68)}
 .stack-grid{
   display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));
   gap:8px;max-width:880px;margin-top:52px;
@@ -291,7 +291,7 @@
 #cta{
   padding:180px clamp(32px,4vw,80px);
   text-align:center;position:relative;overflow:hidden;
-  background:rgba(200,216,212,.74);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  background:rgba(200,216,212,.72);
 }
 #cta::before{
   content:'';position:absolute;top:50%;left:50%;
@@ -367,7 +367,7 @@
 footer{
   padding:100px clamp(32px,4vw,80px) 70px clamp(80px,8vw,160px);
   border-top:1px solid var(--border);
-  background:rgba(184,204,202,.76);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  background:rgba(184,204,202,.72);
   display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;
 }
 .ft-name{font-size:clamp(38px,5.5vw,68px);font-weight:800;letter-spacing:-.04em;line-height:.88;margin-bottom:12px;color:var(--text)}

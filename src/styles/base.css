@@ -65,31 +65,44 @@ a{color:inherit;text-decoration:none}
   background:var(--accent);transition:width .3s;
 }
 
-/* ── CURSOR ─────────────────────────────── */
+/* ── CURSOR — hand-drawn pen/sketch theme ── */
 @media (pointer: fine) {
   body { cursor: none; }
   a, button, .pal-card, .si, .t-item, #sound-toggle { cursor: none; }
 }
 #cur-ring{
-  position:fixed;width:48px;height:48px;border-radius:50%;
-  border:1.5px solid rgba(42,128,144,.5);
+  position:fixed;width:44px;height:44px;
   pointer-events:none;z-index:9999;
   transform:translate(-50%,-50%);
-  transition:width .28s cubic-bezier(.16,1,.3,1),
-             height .28s cubic-bezier(.16,1,.3,1),
-             background .28s,border-color .28s,
-             opacity .3s;
-  mix-blend-mode:exclusion;
+  transition:width .3s cubic-bezier(.16,1,.3,1),
+             height .3s cubic-bezier(.16,1,.3,1),
+             opacity .3s,background .3s;
+  /* Hand-drawn sketchy circle — imperfect line, cafe warmth */
+  border:none;border-radius:0;background:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M52 4C72 2,96 18,97 48C98 72,82 96,52 97C24 98,3 80,3 50C3 22,20 5,52 4' fill='none' stroke='%232A8090' stroke-width='1.2' stroke-linecap='round' opacity='.6'/%3E%3Cpath d='M48 6C70 4,94 20,95 50C96 76,78 94,50 95C20 96,5 76,5 48C5 24,26 7,48 6' fill='none' stroke='%233A2A28' stroke-width='.6' stroke-linecap='round' opacity='.25'/%3E%3C/svg%3E");
+  background-size:contain;background-repeat:no-repeat;
 }
 #cur-dot{
-  position:fixed;width:5px;height:5px;border-radius:50%;
-  background:var(--accent);pointer-events:none;z-index:10000;
-  transform:translate(-50%,-50%);
-  transition:width .2s,height .2s,background .2s;
+  position:fixed;pointer-events:none;z-index:10000;
+  transform:translate(-50%,-50%) rotate(-45deg);
+  transition:width .2s,height .2s,border-radius .2s,background .2s;
+  /* Pen nib — small angled mark */
+  width:6px;height:6px;border-radius:50% 50% 1px 50%;
+  background:var(--sketch);
 }
-#cur-ring.h{width:66px;height:66px;background:rgba(42,128,144,.07);border-color:var(--accent)}
-#cur-ring.text{width:80px;height:80px;background:rgba(42,128,144,.04);border-color:transparent;mix-blend-mode:difference}
-#cur-dot.text{width:3px;height:3px}
+#cur-ring.h{
+  width:62px;height:62px;
+  background-color:rgba(42,128,144,.06);
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M52 4C72 2,96 18,97 48C98 72,82 96,52 97C24 98,3 80,3 50C3 22,20 5,52 4' fill='none' stroke='%232A8090' stroke-width='1.8' stroke-linecap='round' opacity='.8'/%3E%3C/svg%3E");
+}
+#cur-ring.text{
+  width:4px;height:22px;border-radius:1px;
+  background-color:var(--accent);background-image:none;
+  opacity:.5;mix-blend-mode:normal;
+  animation:cur-blink 1s ease-in-out infinite;
+}
+@keyframes cur-blink{0%,100%{opacity:.5}50%{opacity:.15}}
+#cur-dot.text{width:0;height:0}
 @media (pointer: coarse) {
   #cur-ring, #cur-dot { display: none; }
 }
@@ -190,13 +203,13 @@ a{color:inherit;text-decoration:none}
 main{position:relative;z-index:10}
 .section{
   padding:130px clamp(32px,4vw,80px) 130px clamp(80px,8vw,160px);
-  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
 }
 
 /* ── SECTION DIVIDER — transparent 3D window ── */
 .section-divider{
-  height:22vh;min-height:120px;max-height:220px;
+  height:55vh;min-height:320px;max-height:520px;
   margin:0;background:transparent;
+  backdrop-filter:none;-webkit-backdrop-filter:none;
 }
 
 /* ── FADE-UP ────────────────────────────── */
