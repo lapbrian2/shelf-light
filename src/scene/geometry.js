@@ -69,7 +69,7 @@ export const cupPositions = [];
 add(new THREE.BoxGeometry(0.9, 0.02, 0.65), M(0xE4EEF0), [0.5, -0.41, 2.5]);
 
 // ── Chairs ──
-export const chairGroups = [];
+const chairGroups = [];
 function chair(cx2, cz, ry, sc) {
   sc = sc || 1;
   const g = new THREE.Group();

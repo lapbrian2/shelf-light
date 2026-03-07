@@ -5,11 +5,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 /* ══════════════════════════════════════════
-   SHARED SCROLL STATE — velocity + direction for render loop effects
-══════════════════════════════════════════ */
-export const scrollState = { velocity: 0, direction: 0 };
-
-/* ══════════════════════════════════════════
    LENIS SMOOTH SCROLL
 ══════════════════════════════════════════ */
 const lenis = new Lenis({
@@ -31,10 +26,6 @@ export function initNav() {
     nav.classList.toggle('scrolled', scroll > 50);
     if (scroll > 300) { nav.classList.toggle('hidden', scroll > lastScroll && scroll - lastScroll > 5); }
     else { nav.classList.remove('hidden'); }
-
-    // Update shared velocity state for render loop effects
-    scrollState.velocity = velocity;
-    scrollState.direction = scroll > lastScroll ? 1 : -1;
 
     lastScroll = scroll;
     // scroll progress bar

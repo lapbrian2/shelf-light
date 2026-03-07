@@ -187,7 +187,6 @@ a{color:inherit;text-decoration:none}
   position:fixed;top:0;left:0;height:2px;
   background:var(--accent);z-index:9000;
   width:0;transition:none;
-  transform-origin:left;
 }
 
 /* ── SECTION LABEL ──────────────────────── */

@@ -27,12 +27,12 @@ export function initCursor() {
     })();
 
     document.querySelectorAll('a,button,.pal-card,.si,#sound-toggle').forEach(el => {
-      el.addEventListener('mouseenter', () => { ring.classList.add('h'); ring.classList.remove('text'); });
-      el.addEventListener('mouseleave', () => { ring.classList.remove('h'); ring.classList.remove('text'); });
+      el.addEventListener('mouseenter', () => { ring.classList.add('h'); ring.classList.remove('text'); dot.classList.remove('text'); });
+      el.addEventListener('mouseleave', () => { ring.classList.remove('h'); ring.classList.remove('text'); dot.classList.remove('text'); });
     });
-    document.querySelectorAll('.a-body,.t-body,.p-desc,.hero-desc,.prompt-box p,.pal-role,.phase-val').forEach(el => {
-      el.addEventListener('mouseenter', () => { ring.classList.add('text'); ring.classList.remove('h'); });
-      el.addEventListener('mouseleave', () => ring.classList.remove('text'));
+    document.querySelectorAll('.a-body,.t-body,.p-desc,.hero-desc,.prompt-box p,.pal-role,.phase-val,.cta-sub,.ft-sub').forEach(el => {
+      el.addEventListener('mouseenter', () => { ring.classList.add('text'); ring.classList.remove('h'); dot.classList.add('text'); });
+      el.addEventListener('mouseleave', () => { ring.classList.remove('text'); dot.classList.remove('text'); });
     });
   }
 }

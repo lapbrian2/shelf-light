@@ -2,7 +2,8 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   .scroll-bar { animation: none; }
-  #loader{display:none}
+  #loader .loader-ring{animation:none}
+  #loader .loader-fill{transition:none}
 }
 
 /* ── RESPONSIVE ─────────────────────────── */

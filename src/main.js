@@ -17,7 +17,7 @@ import { pendants } from './scene/lights.js';
 import { initPostProcessing, updatePostProcessing } from './scene/postprocessing.js';
 
 // Modules
-import { lenis, ScrollTrigger, initNav, scrollState } from './scroll.js';
+import { lenis, ScrollTrigger, initNav } from './scroll.js';
 import { mouse, initCursor } from './cursor.js';
 import { initCameraChoreography, initHeroReveal, initObservers } from './animations.js';
 import { initSoundToggle, disposeAudio } from './audio.js';
@@ -123,13 +123,17 @@ const skSvgEl = document.getElementById('sk-svg');
 /* ══════════════════════════════════════════
    RESIZE + DISPOSE
 ══════════════════════════════════════════ */
+let resizeId;
 window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-  composer.setSize(window.innerWidth, window.innerHeight);
-  ScrollTrigger.refresh();
+  clearTimeout(resizeId);
+  resizeId = setTimeout(() => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    composer.setSize(window.innerWidth, window.innerHeight);
+    ScrollTrigger.refresh();
+  }, 150);
 });
 
 window.addEventListener('beforeunload', () => {

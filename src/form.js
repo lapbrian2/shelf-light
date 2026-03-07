@@ -11,6 +11,16 @@ export function initForm() {
   const submitBtn = form.querySelector('.form-submit');
   const feedback  = form.querySelector('.form-feedback');
 
+  // Clear error feedback when user starts correcting input
+  form.querySelectorAll('input, textarea, select').forEach(field => {
+    field.addEventListener('input', () => {
+      if (feedback.classList.contains('error')) {
+        feedback.className = 'form-feedback';
+        feedback.textContent = '';
+      }
+    });
+  });
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
