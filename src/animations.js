@@ -5,39 +5,31 @@ import { renderer, proxy } from './scene/index.js';
    SCROLL CAMERA CHOREOGRAPHY — 6 acts
 ══════════════════════════════════════════ */
 export function initCameraChoreography() {
-  // Continuous scroll-driven camera dolly through the cafe.
-  // One timeline scrubbed across the full page — smooth, cinematic, unbroken movement.
+  // Each section gets a distinct close-up composition — like film cuts, not a dolly.
+  // Camera repositions AND re-targets (lz) to frame a completely different subject.
   // Geometry reference:
   //   Cups: (-0.6,-0.3,2.0) & (1.3,-0.3,2.9)   Book spines: z:-6.61 x:1.8-10.8
   //   Open book: (-0.4,-0.39,2.65)                Counter stacks: x:3.2-8.2 z:-2.2
   //   Plant: (6.5,-0.55,-2.1)                     Door: (-2,-0.4,-6.94)
 
-  const tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: 'main',
-      start: 'top top',
-      end: 'bottom bottom',
-      scrub: 1.8,
-      invalidateOnRefresh: true,
-    }
-  });
+  const ST = (trigger) => ({ trigger, start: 'top 80%', end: 'top 30%', scrub: 1.2, invalidateOnRefresh: true });
 
-  // Hero start: { z:6.5, x:0.3, y:0.1, lx:0.8, ly:0.2, lz:-2 } (set by reveal)
+  // Shot 1 (Hero): Wide establishing — set by hero reveal → { z:6.5, x:0.3, y:0.1, lx:0.8, ly:0.2, lz:-2 }
 
-  // Drift toward coffee cups (About)
-  tl.to(proxy, { z: 4.2, x: 0.35, y: 0.35, lx: 0.4, ly: -0.2, lz: 1.8, ease: 'power1.inOut', duration: 1 });
+  // Shot 2 (About): Close-up on coffee cups + steam
+  gsap.to(proxy, { scrollTrigger: ST('#about'), z: 3.5, x: 0.4, y: 0.5, lx: 0.3, ly: -0.35, lz: 2.4, ease: 'power1.inOut' });
 
-  // Sweep right toward the book shelves (Palette)
-  tl.to(proxy, { z: -1.5, x: 4.0, y: 1.6, lx: 5.0, ly: 1.4, lz: -5.0, ease: 'power1.inOut', duration: 1.2 });
+  // Shot 3 (Palette): Tight on colorful book spines
+  gsap.to(proxy, { scrollTrigger: ST('#palette'), z: -4.0, x: 5.5, y: 2.0, lx: 5.5, ly: 2.0, lz: -6.6, ease: 'power1.inOut' });
 
-  // Pull back to hover over the open book (Journey)
-  tl.to(proxy, { z: 3.0, x: 0.2, y: 1.2, lx: -0.2, ly: -0.2, lz: 1.5, ease: 'power1.inOut', duration: 1.1 });
+  // Shot 4 (Journey): Open book overhead close-up
+  gsap.to(proxy, { scrollTrigger: ST('#journey'), z: 3.2, x: -0.4, y: 1.5, lx: -0.4, ly: -0.4, lz: 2.65, ease: 'power1.inOut' });
 
-  // Slide along the counter bar (How)
-  tl.to(proxy, { z: 0.5, x: 2.8, y: 0.4, lx: 5.5, ly: -0.2, lz: -2.0, ease: 'power1.inOut', duration: 1.1 });
+  // Shot 5 (How): Counter bar — looking along stacked objects
+  gsap.to(proxy, { scrollTrigger: ST('#how'), z: 0.0, x: 3.0, y: 0.5, lx: 6.5, ly: -0.3, lz: -2.5, ease: 'power1.inOut' });
 
-  // Wide pullback — the whole cafe (CTA)
-  tl.to(proxy, { z: 8.0, x: 0.0, y: 1.2, lx: 1.0, ly: 0.0, lz: -2.0, ease: 'power2.inOut', duration: 1 });
+  // Shot 6 (CTA): Wide pullback
+  gsap.to(proxy, { scrollTrigger: ST('#cta'), z: 8.5, x: 0.0, y: 1.5, lx: 1.0, ly: 0.0, lz: -2, ease: 'power1.inOut' });
 
   ScrollTrigger.refresh();
 
